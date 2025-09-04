@@ -1,5 +1,6 @@
 @@ .. @@
    return (
+   )
 -    <div className="flex flex-col items-center justify-center text-center">
 -      <div className="bg-white p-8 md:p-12 rounded-2xl shadow-lg max-w-2xl mx-auto">
 -        <h2 className="text-3xl font-extrabold text-indigo-600 mb-2">Tell Us About Yourself</h2>

@@ -1,5 +1,6 @@
 @@ .. @@
    return (
+   )
 -    <div className="flex flex-col items-center justify-center text-center p-8">
 -      <div className="bg-white p-12 rounded-2xl shadow-lg max-w-lg mx-auto">
 -        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto"></div>
