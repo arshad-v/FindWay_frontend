@@ -1,46 +1,71 @@
-import React, { useState, useMemo } from 'react';
-import { type Answer, type Question } from '../types';
-import { ArrowLeftIcon, ArrowRightIcon, CheckIcon } from './icons';
+import React, { useState, useEffect } from 'react';
+import { type Answer, type UserData, type Question } from '../types';
+import { generateTestQuestions } from '../services/geminiService';
+import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, AlertTriangleIcon } from './icons';
 
 interface TestScreenProps {
-  questions: Question[];
-  onTestComplete: (answers: Answer[]) => void;
+  onTestComplete: (answers: Answer[], questions: Question[]) => void;
+  userData: UserData;
 }
 
-const likertOptions = [
-    { text: "Strongly Disagree", value: 1 },
-    { text: "Disagree", value: 2 },
-    { text: "Neutral", value: 3 },
-    { text: "Agree", value: 4 },
-    { text: "Strongly Agree", value: 5 },
-];
+const QuestionLoader: React.FC = () => (
+    <div className="text-center py-10">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+        <p className="mt-4 text-slate-600 text-lg">Generating your personalized assessment...</p>
+        <p className="text-slate-500">This may take a moment.</p>
+    </div>
+);
 
-export const TestScreen: React.FC<TestScreenProps> = ({ questions, onTestComplete }) => {
+const ErrorDisplay: React.FC<{ message: string; onRetry: () => void; }> = ({ message, onRetry }) => (
+    <div className="text-center py-10">
+        <AlertTriangleIcon className="h-12 w-12 text-red-500 mx-auto mb-4" />
+        <h3 className="text-xl font-bold text-slate-800">Something Went Wrong</h3>
+        <p className="text-slate-600 my-2">{message}</p>
+        <button onClick={onRetry} className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+            Try Again
+        </button>
+    </div>
+);
+
+export const TestScreen: React.FC<TestScreenProps> = ({ onTestComplete, userData }) => {
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [selectedOptions, setSelectedOptions] = useState<{ [questionId: number]: number }>({});
 
-  if (questions.length === 0) {
-      return (
-        <div className="bg-white p-8 rounded-2xl shadow-lg max-w-3xl mx-auto text-center">
-            <h3 className="text-xl font-semibold text-slate-800">No questions loaded.</h3>
-            <p className="text-slate-600 mt-2">There might be an issue with generating your assessment. Please try again.</p>
-        </div>
-      );
-  }
-
-  const currentQuestion = questions[currentQuestionIndex];
-  const progress = Math.round(((currentQuestionIndex + 1) / questions.length) * 100);
-
-  const handleAnswerSelect = (value: number) => {
-    const existingAnswerIndex = answers.findIndex(a => a.questionId === currentQuestion.id);
-    const newAnswers = [...answers];
-    if (existingAnswerIndex > -1) {
-      newAnswers[existingAnswerIndex] = { questionId: currentQuestion.id, value };
-    } else {
-      newAnswers.push({ questionId: currentQuestion.id, value });
+  const fetchQuestions = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+        const generatedQuestions = await generateTestQuestions(userData);
+        setQuestions(generatedQuestions);
+    } catch (e) {
+        setError(e instanceof Error ? e.message : 'An unknown error occurred.');
+    } finally {
+        setIsLoading(false);
     }
-    setAnswers(newAnswers);
   };
+  
+  useEffect(() => {
+      fetchQuestions();
+  }, [userData]);
+
+
+  const handleAnswerSelect = (optionIndex: number) => {
+    const currentQuestion = questions[currentQuestionIndex];
+    setSelectedOptions(prev => {
+        const newSelections = {...prev};
+        if (newSelections[currentQuestion.id] === optionIndex) {
+            delete newSelections[currentQuestion.id];
+        } else {
+            newSelections[currentQuestion.id] = optionIndex;
+        }
+        return newSelections;
+    });
+  };
+
 
   const handleNext = () => {
     if (currentQuestionIndex < questions.length - 1) {
@@ -53,13 +78,40 @@ export const TestScreen: React.FC<TestScreenProps> = ({ questions, onTestComplet
       setCurrentQuestionIndex(currentQuestionIndex - 1);
     }
   };
+
+  const handleFinish = () => {
+    const finalAnswers: Answer[] = Object.entries(selectedOptions).map(([questionIdStr, optionIndex]) => {
+        const questionId = parseInt(questionIdStr, 10);
+        const question = questions.find(q => q.id === questionId);
+        return {
+            questionId: questionId,
+            value: question!.options[optionIndex].value
+        };
+    });
+    onTestComplete(finalAnswers, questions);
+  };
   
-  const currentAnswerValue = useMemo(() => {
-    return answers.find(a => a.questionId === currentQuestion.id)?.value;
-  }, [answers, currentQuestion]);
+  const areAllQuestionsAnswered = () => Object.keys(selectedOptions).length === questions.length;
+
+  if (isLoading) {
+      return <div className="bg-white p-8 rounded-2xl shadow-lg max-w-3xl mx-auto"><QuestionLoader /></div>;
+  }
+  
+  if (error) {
+      return <div className="bg-white p-8 rounded-2xl shadow-lg max-w-3xl mx-auto"><ErrorDisplay message={error} onRetry={fetchQuestions} /></div>;
+  }
+  
+  if (questions.length === 0) {
+      return <div className="bg-white p-8 rounded-2xl shadow-lg max-w-3xl mx-auto"><ErrorDisplay message="No questions were generated." onRetry={fetchQuestions} /></div>;
+  }
+  
+  const currentQuestion = questions[currentQuestionIndex];
+  const currentSelectedIndex = selectedOptions[currentQuestion.id];
+  const progress = Math.round(((currentQuestionIndex + 1) / questions.length) * 100);
 
   return (
     <div className="bg-white p-8 rounded-2xl shadow-lg max-w-3xl mx-auto">
+      {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm font-medium text-slate-600">
@@ -72,17 +124,19 @@ export const TestScreen: React.FC<TestScreenProps> = ({ questions, onTestComplet
         </div>
       </div>
 
-      <div className="text-center min-h-[100px]">
+      {/* Question */}
+      <div className="text-center min-h-[100px] flex items-center justify-center">
         <h3 className="text-2xl font-semibold text-slate-800">{currentQuestion.text}</h3>
       </div>
       
+      {/* Options */}
       <div className="my-8 space-y-4">
-        {likertOptions.map(option => (
+        {currentQuestion.options.map((option, index) => (
           <button
-            key={option.value}
-            onClick={() => handleAnswerSelect(option.value)}
+            key={`${currentQuestion.id}-${index}`}
+            onClick={() => handleAnswerSelect(index)}
             className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 transform hover:scale-[1.02] ${
-              currentAnswerValue === option.value
+              currentSelectedIndex === index
                 ? 'bg-indigo-100 border-indigo-500 text-indigo-800 font-semibold'
                 : 'bg-white border-slate-300 hover:border-indigo-400'
             }`}
@@ -92,6 +146,7 @@ export const TestScreen: React.FC<TestScreenProps> = ({ questions, onTestComplet
         ))}
       </div>
 
+      {/* Navigation */}
       <div className="flex justify-between items-center mt-10">
         <button
           onClick={handleBack}
@@ -104,8 +159,8 @@ export const TestScreen: React.FC<TestScreenProps> = ({ questions, onTestComplet
 
         {currentQuestionIndex === questions.length - 1 ? (
           <button
-            onClick={() => onTestComplete(answers)}
-            disabled={answers.length !== questions.length}
+            onClick={handleFinish}
+            disabled={!areAllQuestionsAnswered()}
             className="flex items-center px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors shadow-md"
           >
             <CheckIcon className="h-5 w-5 mr-2" />
@@ -114,7 +169,7 @@ export const TestScreen: React.FC<TestScreenProps> = ({ questions, onTestComplet
         ) : (
           <button
             onClick={handleNext}
-            disabled={!currentAnswerValue}
+            disabled={currentSelectedIndex === undefined}
             className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors"
           >
             Next

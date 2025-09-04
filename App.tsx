@@ -1,28 +1,52 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { WelcomeScreen } from './components/WelcomeScreen';
+import { HomeScreen } from './components/WelcomeScreen';
 import { PreTestScreen } from './components/PreTestScreen';
 import { TestScreen } from './components/TestScreen';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ReportScreen } from './components/ReportScreen';
 import { Header } from './components/Header';
-import { type AppState, type Answer, type ReportData, type UserData, type RawScores, type Question } from './types';
+import { Footer } from './components/Footer';
+import { type AppState, type Answer, type ReportData, type UserData, type RawScores, Question } from './types';
 import { calculateScores } from './utils/scoreCalculator';
-import { getAiService } from './services/geminiService';
-
-const aiService = getAiService();
+import { generateCareerReport } from './services/geminiService';
 
 const App: React.FC = () => {
-  const [appState, setAppState] = useState<AppState>('welcome');
+  const [appState, setAppState] = useState<AppState>('home');
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [questions, setQuestions] = useState<Question[]>([]);
   const [scores, setScores] = useState<RawScores | null>(null);
   const [report, setReport] = useState<ReportData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleTestComplete = useCallback(async (answers: Answer[]) => {
+  const handleStartTest = useCallback(() => {
+    setAppState('pre-test');
+    setUserData(null);
+    setScores(null);
+    setReport(null);
+    setError(null);
+  }, []);
+
+  // This effect guards against invalid state transitions that could cause render loops.
+  useEffect(() => {
+    if (appState === 'test' && !userData) {
+      console.warn("Invalid state: trying to access test without user data. Resetting.");
+      handleStartTest();
+    } else if (appState === 'report' && (!report || !scores || !userData)) {
+      // If we are in 'report' state but have no data, it's an invalid state.
+      // We check localStorage to see if this is an initial load that might succeed.
+      // If there's nothing in storage, it's a true error, so we reset.
+      const hasSessionData = localStorage.getItem('findway_last_report');
+      if (!hasSessionData) {
+        console.warn("Invalid state: trying to access report without data. Resetting.");
+        handleStartTest();
+      }
+    }
+  }, [appState, userData, report, scores, handleStartTest]);
+
+
+  const handleTestComplete = useCallback(async (answers: Answer[], questions: Question[]) => {
     if (!userData) {
       setError("User data is missing. Please restart the assessment.");
-      setAppState('welcome');
+      setAppState('home');
       return;
     }
     setAppState('loading');
@@ -31,53 +55,38 @@ const App: React.FC = () => {
       const calculatedScores = calculateScores(answers, questions);
       setScores(calculatedScores);
       
+      // Save to local storage to simulate history
       localStorage.setItem('findway_last_userdata', JSON.stringify(userData));
       localStorage.setItem('findway_last_scores', JSON.stringify(calculatedScores));
 
-      const generatedReport = await aiService.generateCareerReport(calculatedScores, userData);
-      setReport(generatedReport);
-      localStorage.setItem('findway_last_report', JSON.stringify(generatedReport));
-      setAppState('report');
+      const generatedReport = await generateCareerReport(calculatedScores, userData);
+      // Add a more robust check for a valid report structure
+      if (generatedReport && generatedReport.profileSummary && Array.isArray(generatedReport.careerMatches)) {
+        setReport(generatedReport);
+        localStorage.setItem('findway_last_report', JSON.stringify(generatedReport));
+        setAppState('report');
+      } else {
+        console.error("Received invalid report structure from AI:", generatedReport);
+        throw new Error("The AI model did not return a valid report. The structure was incorrect.");
+      }
     } catch (e) {
       console.error(e);
       const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
       setError(`Failed to generate your report. Please try again. Error: ${errorMessage}`);
-      setAppState('welcome'); 
+      setAppState('home'); 
     }
-  }, [userData, questions]);
-
-  const handleStartTest = useCallback(() => {
-    setAppState('pre-test');
-    setUserData(null);
-    setScores(null);
-    setReport(null);
-    setQuestions([]);
-    setError(null);
-  }, []);
+  }, [userData]);
   
-  const handlePreTestComplete = useCallback(async (data: UserData) => {
+  const handlePreTestComplete = useCallback((data: UserData) => {
     setUserData(data);
-    setAppState('generating-questions');
-    setError(null);
-    try {
-        const generatedQuestions = await aiService.generateAssessmentQuestions(data);
-        if (generatedQuestions.length === 0) {
-            throw new Error("AI failed to generate questions.");
-        }
-        setQuestions(generatedQuestions);
-        setAppState('test');
-    } catch (e) {
-        console.error(e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        setError(`Failed to generate a personalized assessment. Please try again. Error: ${errorMessage}`);
-        setAppState('welcome');
-    }
+    setAppState('test');
   }, []);
 
   const handleRetakeTest = useCallback(() => {
     handleStartTest();
   }, [handleStartTest]);
   
+  // Try to load last session on initial render
   useEffect(() => {
     const lastUserDataStr = localStorage.getItem('findway_last_userdata');
     const lastScoresStr = localStorage.getItem('findway_last_scores');
@@ -87,13 +96,21 @@ const App: React.FC = () => {
         const lastUserData = JSON.parse(lastUserDataStr);
         const lastScores = JSON.parse(lastScoresStr);
         const lastReport = JSON.parse(lastReportStr);
-        setUserData(lastUserData);
-        setScores(lastScores);
-        setReport(lastReport);
-        setAppState('report');
+        
+        // Add validation for localStorage data to prevent crashes on load
+        if (lastReport && lastReport.profileSummary && Array.isArray(lastReport.careerMatches)) {
+          setUserData(lastUserData);
+          setScores(lastScores);
+          setReport(lastReport);
+          setAppState('report');
+        } else {
+          throw new Error("Invalid data structure in localStorage.");
+        }
       } catch (e) {
         console.error("Failed to parse last session from localStorage", e);
-        localStorage.clear();
+        localStorage.removeItem('findway_last_userdata');
+        localStorage.removeItem('findway_last_scores');
+        localStorage.removeItem('findway_last_report');
       }
     }
   }, []);
@@ -101,33 +118,39 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     switch (appState) {
-      case 'welcome':
-        return <WelcomeScreen onStartTest={handleStartTest} error={error} />;
+      case 'home':
+        return <HomeScreen onStartTest={handleStartTest} error={error} />;
       case 'pre-test':
-        return <PreTestScreen onComplete={handlePreTestComplete} />;
-      case 'generating-questions':
-        return <LoadingScreen message="Generating a personalized assessment for you..." />;
+        return <div className="container mx-auto px-4 py-8"><PreTestScreen onComplete={handlePreTestComplete} /></div>;
       case 'test':
-        return <TestScreen questions={questions} onTestComplete={handleTestComplete} />;
+        if (userData) {
+          return <div className="container mx-auto px-4 py-8"><TestScreen onTestComplete={handleTestComplete} userData={userData} /></div>;
+        }
+        // Fallback handled by useEffect, show a loader
+        return <div className="container mx-auto px-4 py-8"><LoadingScreen /></div>;
       case 'loading':
-        return <LoadingScreen />;
+         return <div className="container mx-auto px-4 py-8"><LoadingScreen /></div>;
       case 'report':
         if (report && scores && userData) {
-          return <ReportScreen report={report} scores={scores} onRetake={handleRetakeTest} />;
+          return <ReportScreen report={report} scores={scores} userData={userData} onRetake={handleRetakeTest} />;
         }
-        handleStartTest();
-        return <WelcomeScreen onStartTest={handleStartTest} error="There was an issue loading your report. Please start a new test." />;
+        // Fallback handled by useEffect, show a loader
+        return <div className="container mx-auto px-4 py-8"><LoadingScreen /></div>;
       default:
-        return <WelcomeScreen onStartTest={handleStartTest} />;
+        return <HomeScreen onStartTest={handleStartTest} />;
     }
   };
 
+  const isReportScreen = appState === 'report';
+  const isHomeScreen = appState === 'home';
+
   return (
-    <div className="bg-slate-50 min-h-screen text-slate-800">
-      <Header />
-      <main className="container mx-auto px-4 py-8">
+    <div className="bg-slate-50 min-h-screen text-slate-800 flex flex-col">
+      {!isReportScreen && <Header onStartTest={isHomeScreen ? handleStartTest : undefined} />}
+      <main className="flex-grow">
         {renderContent()}
       </main>
+      {!isReportScreen && <Footer />}
     </div>
   );
 };

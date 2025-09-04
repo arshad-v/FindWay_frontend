@@ -1,19 +1,30 @@
-export type AppState = 'welcome' | 'pre-test' | 'generating-questions' | 'test' | 'loading' | 'report';
+export type AppState = 'home' | 'pre-test' | 'test' | 'loading' | 'report';
 
 export interface UserData {
+  name: string;
+  age: string;
   education: string;
-  interests: string;
+  degree?: string;
+  department?: string;
   skills: string;
-  majorSubjects?: string;
-  favoriteSubject?: string;
-  extracurriculars?: string;
+  areaOfInterest: string;
+}
+
+export enum QuestionType {
+  MultipleChoice = 'multiple-choice',
+  Likert = 'likert',
 }
 
 export interface Question {
   id: number;
   text: string;
+  type: QuestionType;
+  options: {
+    text: string;
+    value: number;
+  }[];
   category: keyof RawScores;
-  subCategory: string; // e.g., 'informative', 'resilience', 'logical'
+  subCategory?: string; // For personality, eq, aptitude
 }
 
 export interface Answer {
@@ -33,20 +44,26 @@ export interface RawScores {
     business: number;
     arts: number;
     health: number;
+    social: number;
   };
   personality: {
     resilience: number;
     teamwork: number;
     decisionMaking: number;
+    openness: number; 
   };
   aptitude: {
     logical: number;
     numerical: number;
     language: number;
+    generalKnowledge: number;
+    attentionToDetail: number;
   };
   eq: {
     empathy: number;
     selfAwareness: number;
+    socialSkills: number;
+    motivation: number;
   };
 }
 
@@ -65,6 +82,7 @@ export interface ChartData {
 
 
 export interface ReportData {
+  profileSummary: string;
   strengths: {
     title: string;
     description: string;
@@ -74,6 +92,7 @@ export interface ReportData {
     description: string;
     trends: string;
     education: string;
+    compatibility: number;
   }[];
   developmentPlan: {
     areasForImprovement: {
@@ -85,4 +104,12 @@ export interface ReportData {
       description: string;
     }[];
   };
+  detailedAnalyses: {
+    orientationStyle: string;
+    interest: string;
+    personality: string;
+    aptitude: string;
+    eq: string;
+  };
+  concludingRemarks: string;
 }
