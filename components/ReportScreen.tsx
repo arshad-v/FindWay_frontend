@@ -4,7 +4,7 @@ import html2canvas from 'html2canvas';
 import { type ReportData, type RawScores, type UserData } from '../types';
 import { getNormalizedScoresForChart } from '../utils/scoreCalculator';
 import { ScoreChart } from './ScoreChart';
-import { LightbulbIcon, BriefcaseIcon, GrowthIcon, DownloadIcon, RefreshCwIcon, StarIcon, TargetIcon, BookOpenIcon, ZapIcon, CodeIcon, DollarSignIcon, PaletteIcon, StethoscopeIcon, UsersIcon, UserIcon, CompassIcon, FlagIcon } from './icons';
+import { LightbulbIcon, BriefcaseIcon, GrowthIcon, DownloadIcon, RefreshCwIcon, StarIcon, TargetIcon, BookOpenIcon, ZapIcon, CodeIcon, DollarSignIcon, PaletteIcon, StethoscopeIcon, UsersIcon, UserIcon, CompassIcon, FlagIcon, MicIcon, HelpCircleIcon } from './icons';
 
 interface ReportScreenProps {
   report: ReportData;
@@ -112,71 +112,153 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
       console.error("Report content element not found.");
       return;
     }
-    
+  
     setIsDownloading(true);
-
-    // Temporarily hide elements not meant for PDF
     const elementsToHide = document.querySelectorAll<HTMLElement>('.pdf-hide');
-    elementsToHide.forEach(el => {
-      el.style.display = 'none';
-    });
-
+    elementsToHide.forEach(el => { el.style.display = 'none'; });
+  
     try {
       const canvas = await html2canvas(contentToCapture, {
         scale: 2,
-        backgroundColor: '#f8fafc', // Tailwind's slate-50
+        backgroundColor: '#ffffff',
         useCORS: true,
-        logging: false,
-        width: 1200, // Use a fixed wide width for consistent layout
-        windowWidth: 1200,
       });
-
+  
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      
+  
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-
+  
+      // margins + header/footer
+      const margin = 10;
+      const headerHeight = 20;
+      const footerHeight = 10;
+      const contentWidth = pdfWidth - (2 * margin);
+      const contentHeight = pdfHeight - headerHeight - footerHeight - margin;
+  
       const imgProps = pdf.getImageProperties(imgData);
-      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      // Add the first page
-      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-      heightLeft -= pdfHeight;
-      
-      // Add subsequent pages if content is longer
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight; // Negative position
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-        heightLeft -= pdfHeight;
+      const imgWidth = contentWidth;
+      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+  
+      let yPosition = 0;
+      let pageNumber = 1;
+      const totalPages = Math.ceil(imgHeight / contentHeight) + 1; // +1 cover
+  
+      const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      });
+  
+      // --- Modern Cover Page ---
+      pdf.setFillColor('#ffffff');
+      pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+  
+      // 🔹 Border with rounded corners
+      pdf.setDrawColor('#d1d5db'); // light gray
+      pdf.setLineWidth(0.8);
+      pdf.roundedRect(12, 12, pdfWidth - 24, pdfHeight - 24, 8, 8);
+  
+      // 🔹 Logo (update path or use base64 if needed)
+      const logoUrl = '/path/to/findway-logo.png';
+      const logoWidth = 45;
+      const logoHeight = 45;
+      const logoX = (pdfWidth - logoWidth) / 2;
+      const logoY = 50;
+      pdf.addImage(logoUrl, 'PNG', logoX, logoY, logoWidth, logoHeight);
+  
+      // Title
+      pdf.setFontSize(26).setTextColor('#1e293b').setFont('helvetica', 'bold');
+      pdf.text('Career Assessment Report', pdfWidth / 2, 115, { align: 'center' });
+  
+      // Accent underline
+      pdf.setDrawColor('#3b82f6');
+      pdf.setLineWidth(1.2);
+      pdf.line(pdfWidth / 2 - 40, 120, pdfWidth / 2 + 40, 120);
+  
+      // Branding
+      pdf.setFontSize(16).setTextColor('#3b82f6').setFont('helvetica', 'bold');
+      pdf.text('FindWay.ai', pdfWidth / 2, 140, { align: 'center' });
+  
+      // User Info
+      pdf.setFontSize(13).setTextColor('#374151').setFont('helvetica', 'normal');
+      pdf.text(`Prepared for: ${userData.name}`, pdfWidth / 2, 165, { align: 'center' });
+  
+      pdf.setFontSize(11).setTextColor('#6b7280');
+      pdf.text(`Generated on ${currentDate}`, pdfWidth / 2, 180, { align: 'center' });
+  
+      // Footer
+      pdf.setFontSize(10).setTextColor('#9ca3af');
+      pdf.text('Confidential Career Assessment Report', pdfWidth / 2, pdfHeight - 30, { align: 'center' });
+      pdf.text('www.findway.ai', pdfWidth / 2, pdfHeight - 20, { align: 'center' });
+  
+      pdf.addPage();
+      pageNumber++;
+  
+      // --- Header/Footer helper ---
+      const addPageTemplate = (pageNum: number, totalPages: number) => {
+        // header
+        pdf.setFontSize(13).setTextColor('#1e293b').setFont('helvetica', 'bold');
+        pdf.text(`Career Assessment Report`, margin, 18);
+  
+        pdf.setFontSize(14).setTextColor('#3b82f6').setFont('helvetica', 'bold');
+        const findwayText = 'FindWay.ai';
+        pdf.text(findwayText, pdfWidth - margin - pdf.getTextWidth(findwayText), 18);
+  
+        pdf.setFontSize(10).setTextColor('#64748b').setFont('helvetica', 'normal');
+        pdf.text(`For: ${userData.name}`, margin, 27);
+        const dateStr = `Generated: ${currentDate}`;
+        pdf.text(dateStr, pdfWidth - margin - pdf.getTextWidth(dateStr), 27);
+  
+        // footer
+        pdf.setFontSize(9).setTextColor('#94a3b8');
+        pdf.text('Confidential Career Assessment Report', margin, pdfHeight - 8);
+  
+        const pageText = `Page ${pageNum} of ${totalPages}`;
+        pdf.text(pageText, pdfWidth - margin - pdf.getTextWidth(pageText), pdfHeight - 8);
+  
+        const websiteText = 'www.findway.ai';
+        pdf.text(websiteText, (pdfWidth - pdf.getTextWidth(websiteText)) / 2, pdfHeight - 8);
+      };
+  
+      // --- Slice content into pages ---
+      while (yPosition < imgHeight) {
+        const canvasPage = document.createElement('canvas');
+        const ctx = canvasPage.getContext('2d')!;
+        const sliceHeight = Math.min(contentHeight, imgHeight - yPosition);
+  
+        canvasPage.width = imgProps.width;
+        canvasPage.height = (sliceHeight * imgProps.width) / contentWidth;
+  
+        ctx.drawImage(
+          canvas,
+          0, (yPosition * imgProps.width) / contentWidth, imgProps.width, (sliceHeight * imgProps.width) / contentWidth,
+          0, 0, canvasPage.width, canvasPage.height
+        );
+  
+        const pageImgData = canvasPage.toDataURL('image/png');
+  
+        if (pageNumber > 2) pdf.addPage();
+        addPageTemplate(pageNumber - 1, totalPages);
+  
+        const topOffset = headerHeight + 8;
+        const usableHeight = pdfHeight - topOffset - footerHeight - 5;
+        pdf.addImage(pageImgData, 'PNG', margin, topOffset, imgWidth, usableHeight);
+  
+        yPosition += contentHeight;
+        pageNumber++;
       }
-      
-      const totalPages = pdf.getNumberOfPages();
-      for (let i = 1; i <= totalPages; i++) {
-          pdf.setPage(i);
-          pdf.setFontSize(9);
-          pdf.setTextColor('#64748b'); // slate-500
-          
-          pdf.text(`FindWay.ai Career Report for ${userData.name}`, 15, 10);
-          pdf.text(`Page ${i} of ${totalPages}`, pdfWidth - 30, pdfHeight - 10);
-      }
-
+  
       pdf.save(`FindWay.ai_Career_Report_${userData.name.replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Sorry, there was an error generating the PDF. Please try again.");
     } finally {
-      // Restore hidden elements
-      elementsToHide.forEach(el => {
-        el.style.display = '';
-      });
+      elementsToHide.forEach(el => { el.style.display = ''; });
       setIsDownloading(false);
     }
-  };
+  };  
+
+
 
   return (
     <div className="bg-slate-50">
@@ -300,6 +382,42 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                 </SectionCard>
             </div>
             
+            {report.interviewPrep && (
+                <div className="p-8 bg-slate-50 rounded-2xl print:p-6 print:shadow-none print:bg-white">
+                    <SectionCard icon={<MicIcon className="h-8 w-8 text-teal-500" />} title="Interview Preparation Tips">
+                        <div className="space-y-6">
+                            <div>
+                                <h4 className="font-semibold text-md text-slate-700 mb-3">General Tips</h4>
+                                <ul className="list-disc list-inside space-y-2 text-sm text-slate-700">
+                                    {report.interviewPrep.generalTips.map((tip, index) => (
+                                        <li key={index}>{tip}</li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            {report.interviewPrep.careerSpecificTips.map((careerTips, index) => (
+                                <div key={index}>
+                                    <h4 className="font-semibold text-md text-slate-700 mb-3 pt-4 border-t border-slate-200">
+                                        For a <span className="text-indigo-600 font-bold">{careerTips.careerTitle}</span> Role
+                                    </h4>
+                                    <div className="space-y-4">
+                                        {careerTips.sampleQuestions.map((q, qIndex) => (
+                                            <div key={qIndex} className="bg-slate-100 p-4 rounded-lg border border-slate-200">
+                                                <p className="font-bold text-slate-800 text-sm flex items-start">
+                                                    <HelpCircleIcon className="h-5 w-5 mr-2 text-slate-500 flex-shrink-0 mt-0.5" />
+                                                    {q.question}
+                                                </p>
+                                                <p className="text-xs text-slate-600 mt-2 pl-7">{q.answerGuidance}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </SectionCard>
+                </div>
+            )}
+
             <div className="p-8 bg-slate-50 rounded-2xl print:p-6 print:shadow-none print:bg-white">
                 <SectionCard icon={<FlagIcon className="h-8 w-8 text-indigo-500" />} title="Your Journey Forward">
                     <p className="leading-relaxed text-lg">{report.concludingRemarks}</p>

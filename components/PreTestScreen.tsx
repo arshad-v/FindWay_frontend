@@ -30,13 +30,13 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete }) => {
 
   return (
     <div className="flex flex-col items-center justify-center text-center">
-      <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 p-8 md:p-12 rounded-2xl shadow-2xl max-w-3xl mx-auto">
-        <h2 className="text-3xl font-extrabold text-blue-400 mb-2">Tell Us About Yourself</h2>
-        <p className="text-gray-300 mb-8">
+      <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 p-4 sm:p-8 md:p-12 rounded-2xl shadow-2xl max-w-3xl mx-auto">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-blue-400 mb-2">Tell Us About Yourself</h2>
+        <p className="text-sm sm:text-base text-gray-300 mb-6 sm:mb-8 px-2">
           This information will help us personalize your assessment and career recommendations.
         </p>
-        <form onSubmit={handleSubmit} className="space-y-6 text-left">
-          <div className="grid md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 text-left">
+          <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
                 <UserIcon className="h-5 w-5 mr-2 text-gray-400" />

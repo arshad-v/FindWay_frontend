@@ -104,6 +104,16 @@ export interface ReportData {
       description: string;
     }[];
   };
+  interviewPrep: {
+    generalTips: string[];
+    careerSpecificTips: {
+      careerTitle: string;
+      sampleQuestions: {
+        question: string;
+        answerGuidance: string;
+      }[];
+    }[];
+  };
   detailedAnalyses: {
     orientationStyle: string;
     interest: string;

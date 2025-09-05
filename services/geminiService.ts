@@ -49,14 +49,25 @@ Scores:
   - Motivation: ${scores.eq.motivation}
 
 --- Report Generation Instructions ---
-Please provide the report in the specified JSON format. Ensure all text is well-written, engaging, and provides deep, actionable insights. Do not include any introductory or concluding text outside of the JSON structure.
+Please provide the report in the specified JSON format. The primary goal is to generate a LONG, DETAILED, and COMPREHENSIVE report. Each text field should be significantly longer and more in-depth than a typical summary. Ensure all text is well-written, engaging, and provides deep, actionable insights. Do not include any introductory or concluding text outside of the JSON structure.
 
--   **profileSummary**: Craft a narrative summary that weaves together the user's background (e.g., their major and interests) with their key assessment results. It should be an engaging opening that makes them feel uniquely understood.
--   **strengths**: For each strength, provide a concrete example of how this strength might manifest in a real-world scenario relevant to the user's field of interest.
--   **careerMatches**: For each career match, go beyond a simple description. Explain *how* their specific personality traits (e.g., high resilience) and aptitudes (e.g., strong logical reasoning) would make them successful and fulfilled in this role. Make the connection explicit and personal. The career compatibility score should be a number between 70 and 99.
--   **developmentPlan**: Frame 'areasForImprovement' as 'Opportunities for Growth'. Recommendations should be highly specific and actionable (e.g., instead of 'Read books', suggest a specific book title, online course, or practical exercise).
--   **detailedAnalyses**: In each analysis, try to connect the findings to other parts of the assessment. For example, 'Your high score in the People-Oriented style is complemented by your strong Empathy score, making you a natural leader in collaborative environments.'
--   **concludingRemarks**: Write a powerful and memorable concluding paragraph. It should summarize their potential and leave them feeling inspired and confident about their next steps on their career journey.
+-   **profileSummary**: Craft a detailed, multi-paragraph narrative summary (at least 150 words) that weaves together the user's background (e.g., their major and interests) with their key assessment results. It should be an engaging opening that makes them feel uniquely understood and sets a positive tone for the entire report.
+
+-   **strengths**: Identify the user's top 3-4 strengths. For each strength, provide a detailed description (at least 3-4 sentences) with a concrete example of how this strength might manifest in a real-world academic or professional scenario relevant to the user's field of interest. Make this section highly detailed and encouraging.
+
+-   **careerMatches**: For each career match, go far beyond a simple description. Write at least three substantial paragraphs (totaling over 200 words per match). Explain *in detail* how their specific personality traits (e.g., high resilience) and aptitudes (e.g., strong logical reasoning) would make them successful and fulfilled in this role. The 'trends' and 'education' sections should also be comprehensive. Make the connection explicit and personal. The career compatibility score should be a number between 70 and 99.
+
+-   **🎯 Personalized Action Plan (developmentPlan)**: This is a critical section requiring significant detail. Frame 'areasForImprovement' as 'Opportunities for Growth' and provide constructive, encouraging advice with specific steps. The 'recommendations' list must be rich and extensive.
+    -   **For 📚 Resource Recommendations**: Include at least 2-3 specific book titles, 2-3 influential articles or blogs, 2-3 online courses (e.g., from Coursera, edX), and 1-2 relevant professional communities or forums for EACH area of improvement.
+    -   **For Habits/Exercises**: Provide detailed, step-by-step instructions for any recommended habits or exercises. Ensure you generate at least 2-3 recommendations for each type ('Habit', 'Resource', 'Exercise').
+
+-   **💼 Interview Preparation Tips (interviewPrep)**: Create a comprehensive section with highly actionable advice for job interviews.
+    -   Provide 5-7 powerful, general tips applicable to any interview, with a short explanation for each.
+    -   Then, for each of the top 3 career matches, provide 3-4 common, role-specific interview questions. For each question, include detailed 'answerGuidance' (at least 3-4 sentences) explaining what the interviewer is looking for and how the user can leverage their specific strengths (from this report) to craft a compelling, structured answer.
+
+-   **detailedAnalyses**: Make each analysis a substantial paragraph of at least 5-7 sentences. In each analysis, connect the findings to other parts of the assessment and potential career paths. For example, 'Your high score in the People-Oriented style is complemented by your strong Empathy score, making you a natural leader in collaborative environments, which is a key asset for a career in Social Work or Management.'
+
+-   **concludingRemarks**: Write a powerful and memorable concluding statement of at least two paragraphs (100+ words). It should summarize their unique potential, reinforce their strengths, and leave them feeling deeply inspired, motivated, and confident about their next steps on their career journey.
 `;
 }
 
@@ -151,6 +162,41 @@ const responseSchema = {
             },
             required: ["areasForImprovement", "recommendations"],
         },
+        interviewPrep: {
+            type: Type.OBJECT,
+            description: "Actionable tips to help the user prepare for job interviews.",
+            properties: {
+                generalTips: {
+                    type: Type.ARRAY,
+                    description: "A list of 3-5 general, powerful interview tips.",
+                    items: { type: Type.STRING }
+                },
+                careerSpecificTips: {
+                    type: Type.ARRAY,
+                    description: "Interview preparation tailored to each of the top 3 career matches.",
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            careerTitle: { type: Type.STRING, description: "The title of the career this advice is for. Should match one of the careerMatches." },
+                            sampleQuestions: {
+                                type: Type.ARRAY,
+                                description: "A list of 2-3 common interview questions for this specific role, with guidance on how to answer them effectively.",
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        question: { type: Type.STRING, description: "A sample interview question." },
+                                        answerGuidance: { type: Type.STRING, description: "A brief guide on what the interviewer is looking for and how the user can structure their answer, linking back to their strengths." }
+                                    },
+                                    required: ["question", "answerGuidance"]
+                                }
+                            }
+                        },
+                        required: ["careerTitle", "sampleQuestions"]
+                    }
+                }
+            },
+            required: ["generalTips", "careerSpecificTips"]
+        },
         detailedAnalyses: {
             type: Type.OBJECT,
             description: "AI-generated interpretations for each of the five main assessment categories.",
@@ -168,7 +214,7 @@ const responseSchema = {
             description: "A final, uplifting, and forward-looking paragraph to conclude the report. It should summarize the user's potential and leave them feeling inspired and confident about their next steps."
         }
     },
-    required: ["profileSummary", "strengths", "careerMatches", "developmentPlan", "detailedAnalyses", "concludingRemarks"],
+    required: ["profileSummary", "strengths", "careerMatches", "developmentPlan", "interviewPrep", "detailedAnalyses", "concludingRemarks"],
 };
 
 

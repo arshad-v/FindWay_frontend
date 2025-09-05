@@ -9,8 +9,10 @@ import { Footer } from './components/Footer';
 import { type AppState, type Answer, type ReportData, type UserData, type RawScores, Question } from './types';
 import { calculateScores } from './utils/scoreCalculator';
 import { generateCareerReport } from './services/geminiService';
+import { SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
 
 const App: React.FC = () => {
+  const { isSignedIn, isLoaded } = useAuth();
   const [appState, setAppState] = useState<AppState>('home');
   const [userData, setUserData] = useState<UserData | null>(null);
   const [scores, setScores] = useState<RawScores | null>(null);
@@ -18,12 +20,24 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleStartTest = useCallback(() => {
+    // Check if Clerk is loaded
+    if (!isLoaded) {
+      setError("Authentication is loading. Please wait a moment.");
+      return;
+    }
+    
+    if (!isSignedIn) {
+      // Redirect to Clerk authentication - this will be handled by SignInButton
+      return;
+    }
+
+    // User is signed in, proceed with the test
+    setError(null);
     setAppState('pre-test');
     setUserData(null);
     setScores(null);
     setReport(null);
-    setError(null);
-  }, []);
+  }, [isSignedIn, isLoaded]);
 
   // This effect guards against invalid state transitions that could cause render loops.
   useEffect(() => {
@@ -85,34 +99,60 @@ const App: React.FC = () => {
   const handleRetakeTest = useCallback(() => {
     handleStartTest();
   }, [handleStartTest]);
-  
-  // Try to load last session on initial render
-  useEffect(() => {
+
+  const handleGoHome = useCallback(() => {
+    setAppState('home');
+    setUserData(null);
+    setScores(null);
+    setReport(null);
+    setError(null);
+  }, []);
+
+  const handleViewReport = useCallback(() => {
+    // Try to load the last report from localStorage
     const lastUserDataStr = localStorage.getItem('findway_last_userdata');
     const lastScoresStr = localStorage.getItem('findway_last_scores');
     const lastReportStr = localStorage.getItem('findway_last_report');
+    
     if (lastUserDataStr && lastScoresStr && lastReportStr) {
       try {
         const lastUserData = JSON.parse(lastUserDataStr);
         const lastScores = JSON.parse(lastScoresStr);
         const lastReport = JSON.parse(lastReportStr);
         
-        // Add validation for localStorage data to prevent crashes on load
+        // Validate the data structure
         if (lastReport && lastReport.profileSummary && Array.isArray(lastReport.careerMatches)) {
           setUserData(lastUserData);
           setScores(lastScores);
           setReport(lastReport);
           setAppState('report');
+          setError(null); // Clear any previous errors
         } else {
-          throw new Error("Invalid data structure in localStorage.");
+          // Navigate to report page with error
+          setAppState('report');
+          setError("No valid report found. Please take the assessment first.");
         }
       } catch (e) {
-        console.error("Failed to parse last session from localStorage", e);
-        localStorage.removeItem('findway_last_userdata');
-        localStorage.removeItem('findway_last_scores');
-        localStorage.removeItem('findway_last_report');
+        console.error("Failed to parse report from localStorage", e);
+        // Navigate to report page with error
+        setAppState('report');
+        setError("Unable to load your previous report. Please take the assessment again.");
       }
+    } else {
+      // Navigate to report page with error
+      setAppState('report');
+      setError("No previous report found. Please take the assessment first.");
     }
+  }, []);
+  
+  // Initialize app state on mount
+  useEffect(() => {
+    // Ensure we start on home page
+    setAppState('home');
+    setUserData(null);
+    setScores(null);
+    setReport(null);
+    setError(null);
   }, []);
 
 
@@ -134,8 +174,30 @@ const App: React.FC = () => {
         if (report && scores && userData) {
           return <ReportScreen report={report} scores={scores} userData={userData} onRetake={handleRetakeTest} />;
         }
-        // Fallback handled by useEffect, show a loader
-        return <div className="container mx-auto px-4 py-8"><LoadingScreen /></div>;
+        // Show error message on report page when no report is available
+        return (
+          <div className="container mx-auto px-4 py-8 text-center">
+            <div className="max-w-xl mx-auto bg-red-900/20 border border-red-500/50 backdrop-blur-sm p-6 mb-8 text-left rounded-xl">
+              <div className="flex">
+                <div className="py-1">
+                  <svg className="h-6 w-6 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="font-bold text-red-400">An Error Occurred</p>
+                  <p className="text-sm text-red-300">{error}</p>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={handleStartTest}
+              className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all duration-300"
+            >
+              Take Assessment
+            </button>
+          </div>
+        );
       default:
         return <HomeScreen onStartTest={handleStartTest} />;
     }
@@ -145,10 +207,15 @@ const App: React.FC = () => {
   const isHomeScreen = appState === 'home';
 
   return (
-    <div className="bg-gray-900 min-h-screen text-gray-100 flex flex-col">
-      {!isReportScreen && <Header onStartTest={isHomeScreen ? handleStartTest : undefined} />}
+    <div className="bg-black min-h-screen text-gray-100 flex flex-col">
+      <Header onStartTest={handleStartTest} onGoHome={handleGoHome} onViewReport={handleViewReport} />
       <main className="flex-grow">
-        {renderContent()}
+        <SignedIn>
+          {renderContent()}
+        </SignedIn>
+        <SignedOut>
+          {appState === 'home' ? renderContent() : <HomeScreen onStartTest={handleStartTest} error={error} />}
+        </SignedOut>
       </main>
       {!isReportScreen && <Footer />}
     </div>

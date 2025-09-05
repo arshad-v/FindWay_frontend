@@ -4,15 +4,15 @@ import { CompassIcon, ArrowRightIcon } from './icons';
 export const Footer: React.FC = () => {
   return (
     <footer className="bg-gray-950 text-gray-300 border-t border-gray-800">
-      <div className="container mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-12">
           <div className="md:col-span-2">
             <div className="flex items-center mb-6">
-              <div className="relative">
-                <CompassIcon className="h-10 w-10 text-blue-400" />
-                <div className="absolute inset-0 bg-blue-400/20 rounded-full animate-pulse"></div>
-              </div>
-              <h2 className="text-2xl font-bold text-white ml-3 tracking-tight">FindWay.ai</h2>
+              <img 
+                src="https://i.postimg.cc/c4j4nLFd/Removal-40.png" 
+                alt="FindWay.ai Logo" 
+                className="h-16 w-auto"
+              />
             </div>
             <p className="text-gray-400 mb-6 leading-relaxed max-w-md">
               Empowering students and professionals to discover their ideal career paths through advanced AI-driven assessments and personalized guidance.

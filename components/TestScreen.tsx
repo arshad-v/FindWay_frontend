@@ -110,7 +110,7 @@ export const TestScreen: React.FC<TestScreenProps> = ({ onTestComplete, userData
   const progress = Math.round(((currentQuestionIndex + 1) / questions.length) * 100);
 
   return (
-    <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 p-8 rounded-2xl shadow-2xl max-w-3xl mx-auto">
+    <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 p-4 sm:p-8 rounded-2xl shadow-2xl max-w-3xl mx-auto">
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-2">
@@ -125,8 +125,8 @@ export const TestScreen: React.FC<TestScreenProps> = ({ onTestComplete, userData
       </div>
 
       {/* Question */}
-      <div className="text-center min-h-[100px] flex items-center justify-center">
-        <h3 className="text-2xl font-semibold text-white leading-relaxed">{currentQuestion.text}</h3>
+      <div className="text-center min-h-[80px] sm:min-h-[100px] flex items-center justify-center">
+        <h3 className="text-lg sm:text-2xl font-semibold text-white leading-relaxed px-2">{currentQuestion.text}</h3>
       </div>
       
       {/* Options */}
@@ -135,7 +135,7 @@ export const TestScreen: React.FC<TestScreenProps> = ({ onTestComplete, userData
           <button
             key={`${currentQuestion.id}-${index}`}
             onClick={() => handleAnswerSelect(index)}
-            className={`w-full text-left p-5 rounded-xl border-2 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg ${
+            className={`w-full text-left p-3 sm:p-5 rounded-xl border-2 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg text-sm sm:text-base ${
               currentSelectedIndex === index
                 ? 'bg-blue-500/20 border-blue-500 text-blue-300 font-semibold shadow-lg shadow-blue-500/25'
                 : 'bg-gray-700/50 border-gray-600 hover:border-blue-400 text-gray-300 hover:bg-gray-700/70'
@@ -147,13 +147,13 @@ export const TestScreen: React.FC<TestScreenProps> = ({ onTestComplete, userData
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-between items-center mt-10">
+      <div className="flex justify-between items-center mt-10 gap-4">
         <button
           onClick={handleBack}
           disabled={currentQuestionIndex === 0}
-          className="flex items-center px-6 py-3 bg-gray-700 text-gray-300 rounded-xl hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+          className="flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-gray-700 text-gray-300 rounded-xl hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-sm sm:text-base"
         >
-          <ArrowLeftIcon className="h-5 w-5 mr-2" />
+          <ArrowLeftIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
           Back
         </button>
 
@@ -161,19 +161,20 @@ export const TestScreen: React.FC<TestScreenProps> = ({ onTestComplete, userData
           <button
             onClick={handleFinish}
             disabled={!areAllQuestionsAnswered()}
-            className="flex items-center px-8 py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-green-500/25 hover:scale-105"
+            className="flex items-center px-4 sm:px-8 py-3 sm:py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-green-500/25 hover:scale-105 text-sm sm:text-base"
           >
-            <CheckIcon className="h-5 w-5 mr-2" />
-            Finish & See Report
+            <CheckIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Finish & See Report</span>
+            <span className="sm:hidden">Finish</span>
           </button>
         ) : (
           <button
             onClick={handleNext}
             disabled={currentSelectedIndex === undefined}
-            className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105"
+            className="flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 text-sm sm:text-base"
           >
             Next
-            <ArrowRightIcon className="h-5 w-5 ml-2" />
+            <ArrowRightIcon className="h-4 w-4 sm:h-5 sm:w-5 ml-1 sm:ml-2" />
           </button>
         )}
       </div>
