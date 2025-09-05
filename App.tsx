@@ -145,7 +145,7 @@ const App: React.FC = () => {
   const isHomeScreen = appState === 'home';
 
   return (
-    <div className="bg-slate-50 min-h-screen text-slate-800 flex flex-col">
+    <div className="bg-gray-900 min-h-screen text-gray-100 flex flex-col">
       {!isReportScreen && <Header onStartTest={isHomeScreen ? handleStartTest : undefined} />}
       <main className="flex-grow">
         {renderContent()}
