@@ -30,12 +30,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                     raysOrigin="top-center"
                     raysColor="#00ffff"
                     raysSpeed={1.5}
-                    lightSpread={0.8}
-                    rayLength={1.2}
+                    lightSpread={0.6}
+                    rayLength={2.5}
                     followMouse={true}
-                    mouseInfluence={0.1}
-                    noiseAmount={0.1}
-                    distortion={0.05}
+                    mouseInfluence={0.15}
+                    noiseAmount={0.05}
+                    distortion={0.08}
+                    fadeDistance={1.5}
+                    saturation={1.2}
                     className="hero-light-rays"
                 />
             </div>
