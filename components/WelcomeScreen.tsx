@@ -109,11 +109,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
     <div className="block sm:hidden mb-16"></div>
 
     <div className="flex items-center justify-center sm:justify-between px-4 sm:px-6">
-        {/* Logo Image shifted left by using negative margin */}
+        {/* Logo Image with small negative margin-left */}
         <img
             src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png"
             alt="FindWay.ai Logo"
-            className="h-[8rem] sm:h-[12rem] md:h-[14rem] w-auto -ml-16 sm:-ml-32"
+            className="h-[8rem] sm:h-[12rem] md:h-[14rem] w-auto -ml-4 sm:-ml-8"
             style={{ pointerEvents: 'none' }}
         />
 
@@ -123,6 +123,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
         </div>
     </div>
 </div>
+
 
 
             </div>
