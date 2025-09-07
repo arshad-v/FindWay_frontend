@@ -307,7 +307,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                 {/* Buttons First */}
                 <div className="flex gap-3 justify-center mb-6">
                     <button onClick={onRetake} className="flex items-center px-4 py-2.5 bg-white text-slate-700 rounded-lg border border-slate-300 hover:bg-slate-100 transition-colors font-semibold text-sm shadow-sm">
-                        <RefreshCwIcon className="h-4 w-4 mr-2" /> Retake
+                        <RefreshCwIcon className="h-6 w-7 mr-2" /> Retake
                     </button>
                     <button onClick={downloadPdf} disabled={isDownloading} className="flex items-center px-4 py-2.5 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-400 disabled:cursor-wait text-sm">
                         {isDownloading ? (
@@ -320,7 +320,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                             </>
                         ) : (
                             <>
-                                <DownloadIcon className="h-4 w-4 mr-2" /> PDF
+                                <DownloadIcon className="h-6 w-7 mr-2" /> PDF
                             </>
                         )}
                     </button>
@@ -346,7 +346,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                 </div>
                 <div className="flex gap-3 flex-shrink-0">
                     <button onClick={onRetake} className="flex items-center px-4 py-2 bg-white text-slate-700 rounded-lg border border-slate-300 hover:bg-slate-100 transition-colors font-semibold">
-                        <RefreshCwIcon className="h-4 w-4 mr-2" /> Retake Test
+                        <RefreshCwIcon className="h-6 w-7 mr-2" /> Retake Test
                     </button>
                     <button onClick={downloadPdf} disabled={isDownloading} className="flex items-center px-5 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-400 disabled:cursor-wait">
                         {isDownloading ? (
@@ -359,7 +359,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                             </>
                         ) : (
                             <>
-                                <DownloadIcon className="h-5 w-5 mr-2" /> Download PDF
+                                <DownloadIcon className="h-6 w-7 mr-2" /> Download PDF
                             </>
                         )}
                     </button>

@@ -39,7 +39,7 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete }) => {
           <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
-                <UserIcon className="h-5 w-5 mr-2 text-gray-400" />
+                <UserIcon className="h-6 w-7 mr-2 text-gray-400" />
                 Full Name <span className="text-red-500 ml-1">*</span>
               </label>
               <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)}
@@ -47,7 +47,7 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete }) => {
             </div>
             <div>
                 <label htmlFor="age" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
-                    <CalendarIcon className="h-5 w-5 mr-2 text-gray-400" />
+                    <CalendarIcon className="h-6 w-7 mr-2 text-gray-400" />
                     Age
                 </label>
                 <input type="number" id="age" value={age} onChange={(e) => setAge(e.target.value)}
@@ -56,7 +56,7 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete }) => {
           </div>
           <div>
             <label htmlFor="education" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
-              <BriefcaseIcon className="h-5 w-5 mr-2 text-gray-400" />
+              <BriefcaseIcon className="h-6 w-7 mr-2 text-gray-400" />
               Current Education Level <span className="text-red-500 ml-1">*</span>
             </label>
             <select id="education" value={education} onChange={(e) => setEducation(e.target.value)}
@@ -75,7 +75,7 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete }) => {
             <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="degree" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
-                    <BriefcaseIcon className="h-5 w-5 mr-2 text-gray-400" />
+                    <BriefcaseIcon className="h-6 w-7 mr-2 text-gray-400" />
                     Degree / Program
                   </label>
                   <input type="text" id="degree" value={degree} onChange={(e) => setDegree(e.target.value)} placeholder="e.g., B.Tech, BSc, MBA"
@@ -83,7 +83,7 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete }) => {
                 </div>
                 <div>
                     <label htmlFor="department" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
-                        <BookOpenIcon className="h-5 w-5 mr-2 text-gray-400" />
+                        <BookOpenIcon className="h-6 w-7 mr-2 text-gray-400" />
                         Department / Major
                     </label>
                     <input type="text" id="department" value={department} onChange={(e) => setDepartment(e.target.value)} placeholder="e.g., Computer Science, Biology"
@@ -94,7 +94,7 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete }) => {
 
            <div>
               <label htmlFor="skills" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
-                <StarIcon className="h-5 w-5 mr-2 text-gray-400" />
+                <StarIcon className="h-6 w-7 mr-2 text-gray-400" />
                 Your Skills or Talents
               </label>
               <input type="text" id="skills" value={skills} onChange={(e) => setSkills(e.target.value)} placeholder="e.g., Programming, Public Speaking, Graphic Design"
@@ -103,7 +103,7 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete }) => {
 
             <div>
               <label htmlFor="areaOfInterest" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
-                <HeartIcon className="h-5 w-5 mr-2 text-gray-400" />
+                <HeartIcon className="h-6 w-7 mr-2 text-gray-400" />
                 Area of Interest
               </label>
               <input type="text" id="areaOfInterest" value={areaOfInterest} onChange={(e) => setAreaOfInterest(e.target.value)} placeholder="e.g., Technology, Healthcare, Arts"
@@ -118,7 +118,7 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete }) => {
             >
               <div className="absolute inset-0 bg-white/10 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
               Continue to Assessment
-              <ArrowRightIcon className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+              <ArrowRightIcon className="ml-2 h-6 w-7 transition-transform duration-300 group-hover:translate-x-1" />
             </button>
           </div>
         </form>

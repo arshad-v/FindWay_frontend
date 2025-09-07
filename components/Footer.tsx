@@ -84,13 +84,13 @@ export const Footer: React.FC = () => {
           <div className="max-w-md mx-auto text-center">
             <h3 className="font-bold text-white mb-4">Stay Updated</h3>
             <p className="text-gray-400 mb-6">Get the latest career insights and updates delivered to your inbox.</p>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-3">
               <input 
                 type="email" 
                 placeholder="Enter your email" 
                 className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
               />
-              <button className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-all duration-300 hover:scale-105">
+              <button className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-all duration-300 hover:scale-105 whitespace-nowrap">
                 Subscribe
               </button>
             </div>
