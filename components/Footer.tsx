@@ -100,7 +100,7 @@ export const Footer: React.FC = () => {
         <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm">&copy; {new Date().getFullYear()} FindWay.ai. All rights reserved.</p>
           <div className="flex items-center space-x-6 mt-4 md:mt-0">
-            <span className="text-gray-500 text-sm">Made with ❤️ for students worldwide</span>
+            <span className="text-gray-500 text-sm">Made in India</span>
           </div>
         </div>
       </div>

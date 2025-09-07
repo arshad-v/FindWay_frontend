@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { type UserData } from '../types';
-import { ArrowRightIcon, UserIcon, BriefcaseIcon, CalendarIcon, HeartIcon, StarIcon, BookOpenIcon } from './icons';
+import { ArrowRightIcon, UserIcon, BriefcaseIcon, CalendarIcon, HeartIcon, StarIcon, BookOpenIcon, ArrowLeftIcon } from './icons';
 
 interface PreTestScreenProps {
   onComplete: (data: UserData) => void;
+  onBack?: () => void;
 }
 
-export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete }) => {
+export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack }) => {
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [education, setEducation] = useState('');
@@ -30,7 +31,16 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete }) => {
 
   return (
     <div className="flex flex-col items-center justify-center text-center">
-      <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 p-4 sm:p-8 md:p-12 rounded-2xl shadow-2xl max-w-3xl mx-auto">
+      <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 p-4 sm:p-8 md:p-12 rounded-2xl shadow-2xl max-w-3xl mx-auto relative">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="absolute top-3 left-3 md:top-4 md:left-4 p-2 md:p-3 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all duration-300 group z-10"
+            title="Back"
+          >
+            <ArrowLeftIcon className="h-5 w-5 md:h-6 md:w-6" />
+          </button>
+        )}
         <h2 className="text-2xl sm:text-3xl font-extrabold text-blue-400 mb-2">Tell Us About Yourself</h2>
         <p className="text-sm sm:text-base text-gray-300 mb-6 sm:mb-8 px-2">
           This information will help us personalize your assessment and career recommendations.

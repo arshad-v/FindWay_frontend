@@ -12,9 +12,10 @@ interface HeaderProps {
   onStartTest?: () => void;
   onGoHome?: () => void;
   onViewReport?: () => void;
+  onPricing?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewReport }) => {
+export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewReport, onPricing }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -77,14 +78,17 @@ export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewRep
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
               </button>
             </SignedIn>
-            <a href="#how-it-works" className="hover:text-blue-400 transition-all duration-300 hover:scale-105 relative group">
-              How It Works
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
-            </a>
             <a href="#features" className="hover:text-blue-400 transition-all duration-300 hover:scale-105 relative group">
               Features
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
             </a>
+            <button 
+              onClick={onPricing}
+              className="hover:text-blue-400 transition-all duration-300 hover:scale-105 relative group"
+            >
+              Pricing
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
+            </button>
             <a href="#contact" className="hover:text-blue-400 transition-all duration-300 hover:scale-105 relative group">
               Contact
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
@@ -180,6 +184,15 @@ export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewRep
             >
               Features
             </a>
+            <button 
+              onClick={() => {
+                onPricing?.();
+                setIsMobileMenuOpen(false);
+              }}
+              className="block w-full text-left px-6 py-3 text-gray-300 hover:text-blue-400 hover:bg-slate-700/50 transition-all duration-300"
+            >
+              Pricing
+            </button>
             {onStartTest && (
               <div className="border-t border-slate-600 mt-2 pt-2">
                 <SignedOut>

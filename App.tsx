@@ -4,6 +4,7 @@ import { PreTestScreen } from './components/PreTestScreen';
 import { TestScreen } from './components/TestScreen';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ReportScreen } from './components/ReportScreen';
+import { PricingScreen } from './components/PricingScreen';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { type AppState, type Answer, type ReportData, type UserData, type RawScores, Question } from './types';
@@ -13,7 +14,7 @@ import { SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
 
 const App: React.FC = () => {
   const { isSignedIn, isLoaded } = useAuth();
-  const [appState, setAppState] = useState<AppState>('home');
+  const [appState, setAppState] = useState<AppState | 'pricing'>('home');
   const [userData, setUserData] = useState<UserData | null>(null);
   const [scores, setScores] = useState<RawScores | null>(null);
   const [report, setReport] = useState<ReportData | null>(null);
@@ -109,40 +110,49 @@ const App: React.FC = () => {
   }, []);
 
   const handleViewReport = useCallback(() => {
-    // Try to load the last report from localStorage
-    const lastUserDataStr = localStorage.getItem('findway_last_userdata');
-    const lastScoresStr = localStorage.getItem('findway_last_scores');
-    const lastReportStr = localStorage.getItem('findway_last_report');
+    // Check if Clerk is loaded
+    if (!isLoaded) {
+      setError("Authentication is loading. Please wait a moment.");
+      return;
+    }
     
-    if (lastUserDataStr && lastScoresStr && lastReportStr) {
-      try {
-        const lastUserData = JSON.parse(lastUserDataStr);
-        const lastScores = JSON.parse(lastScoresStr);
-        const lastReport = JSON.parse(lastReportStr);
-        
-        // Validate the data structure
-        if (lastReport && lastReport.profileSummary && Array.isArray(lastReport.careerMatches)) {
-          setUserData(lastUserData);
-          setScores(lastScores);
-          setReport(lastReport);
+    if (!isSignedIn) {
+      setError("Please sign in to view your report.");
+      return;
+    }
+
+    // Check if we have existing report data
+    if (report && scores && userData) {
+      setAppState('report');
+      setError(null);
+    } else {
+      // Try to load from localStorage or show error
+      const savedUserData = localStorage.getItem('findway_userData');
+      const savedScores = localStorage.getItem('findway_scores');
+      const savedReport = localStorage.getItem('findway_report');
+      
+      if (savedUserData && savedScores && savedReport) {
+        try {
+          setUserData(JSON.parse(savedUserData));
+          setScores(JSON.parse(savedScores));
+          setReport(JSON.parse(savedReport));
           setAppState('report');
-          setError(null); // Clear any previous errors
-        } else {
-          // Navigate to report page with error
-          setAppState('report');
-          setError("No valid report found. Please take the assessment first.");
+          setError(null);
+        } catch (e) {
+          console.error('Error loading saved data:', e);
+          setError("Unable to load your previous report. Please take the assessment again.");
         }
-      } catch (e) {
-        console.error("Failed to parse report from localStorage", e);
+      } else {
         // Navigate to report page with error
         setAppState('report');
-        setError("Unable to load your previous report. Please take the assessment again.");
+        setError("No previous report found. Please take the assessment first.");
       }
-    } else {
-      // Navigate to report page with error
-      setAppState('report');
-      setError("No previous report found. Please take the assessment first.");
     }
+  }, []);
+
+  const handlePricing = useCallback(() => {
+    setAppState('pricing');
+    setError(null);
   }, []);
   
   // Initialize app state on mount
@@ -161,7 +171,7 @@ const App: React.FC = () => {
       case 'home':
         return <HomeScreen onStartTest={handleStartTest} error={error} />;
       case 'pre-test':
-        return <div className="container mx-auto px-4 py-8"><PreTestScreen onComplete={handlePreTestComplete} /></div>;
+        return <div className="container mx-auto px-4 py-8"><PreTestScreen onComplete={handlePreTestComplete} onBack={() => setAppState('home')} /></div>;
       case 'test':
         if (userData) {
           return <div className="container mx-auto px-4 py-8"><TestScreen onTestComplete={handleTestComplete} userData={userData} /></div>;
@@ -170,6 +180,8 @@ const App: React.FC = () => {
         return <div className="container mx-auto px-4 py-8"><LoadingScreen /></div>;
       case 'loading':
          return <div className="container mx-auto px-4 py-8"><LoadingScreen /></div>;
+      case 'pricing':
+        return <PricingScreen onBack={() => setAppState('home')} />;
       case 'report':
         if (report && scores && userData) {
           return <ReportScreen report={report} scores={scores} userData={userData} onRetake={handleRetakeTest} />;
@@ -208,13 +220,13 @@ const App: React.FC = () => {
 
   return (
     <div className="bg-black min-h-screen text-gray-100 flex flex-col w-full overflow-x-hidden">
-      <Header onStartTest={handleStartTest} onGoHome={handleGoHome} onViewReport={handleViewReport} />
+      <Header onStartTest={handleStartTest} onGoHome={handleGoHome} onViewReport={handleViewReport} onPricing={handlePricing} />
       <main className="flex-grow">
         <SignedIn>
           {renderContent()}
         </SignedIn>
         <SignedOut>
-          {appState === 'home' ? renderContent() : <HomeScreen onStartTest={handleStartTest} error={error} />}
+          {appState === 'home' || appState === 'pricing' ? renderContent() : <HomeScreen onStartTest={handleStartTest} error={error} />}
         </SignedOut>
       </main>
       {!isReportScreen && <Footer />}
