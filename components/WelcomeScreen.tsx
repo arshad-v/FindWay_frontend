@@ -102,19 +102,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                     <p className="text-gray-400 mt-3 sm:mt-4 text-xs sm:text-sm px-5">✨ Quick signup • Takes 5 minutes • Instant results</p>
                 </div>
 
-                {/* Background Logo + Text */}
+                {/* Logo for Mobile, App Name for Web */}
                 <div className="relative mt-0.05 pointer-events-none opacity-10">
-                    {/* Mobile: Show only logo */}
-                    <div className="sm:hidden flex justify-center">
-                        <img
-                            src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png"
-                            alt="FindWay.ai Logo"
-                            className="h-[8rem] w-auto"
-                        />
+                    <div className="block sm:hidden mb-16">
+                        {/* Mobile: Show only logo */}
+                        <div className="flex justify-center px-4">
+                            <img
+                                src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png"
+                                alt="FindWay.ai Logo"
+                                className="h-[8rem] w-auto"
+                            />
+                        </div>
                     </div>
-                    
-                    {/* Web: Show only app name, centered */}
-                    <div className="hidden sm:flex justify-center">
+                    {/* Web: Show only app name */}
+                    <div className="hidden sm:flex justify-center px-4 sm:px-10">
                         <div className="text-[8rem] sm:text-[10rem] md:text-[12rem] font-extrabold text-gray-500 whitespace-nowrap">
                             <span>FindWay</span><span>.ai</span>
                         </div>
