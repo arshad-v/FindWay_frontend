@@ -10,7 +10,16 @@ interface TestScreenProps {
 
 const QuestionLoader: React.FC = () => (
     <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto"></div>
+        <div className="relative mx-auto w-16 h-16">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+                <img 
+                    src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png" 
+                    alt="FindWay.ai Logo" 
+                    className="h-8 w-8 object-contain"
+                />
+            </div>
+        </div>
         <p className="mt-6 text-gray-300 text-xl">Generating your personalized assessment...</p>
         <p className="text-gray-400 mt-2">This may take a moment.</p>
     </div>

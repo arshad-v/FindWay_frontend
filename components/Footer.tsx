@@ -8,11 +8,17 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-12">
           <div className="md:col-span-2">
             <div className="flex items-center mb-6">
-              <img 
-                src="https://i.postimg.cc/c4j4nLFd/Removal-40.png" 
-                alt="FindWay.ai Logo" 
-                className="h-16 w-auto"
-              />
+              <div className="flex items-center gap-3">
+                <img 
+                  src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png" 
+                  alt="FindWay.ai Logo" 
+                  className="h-12 w-auto"
+                />
+                <div className="text-3xl font-bold">
+                  <span className="text-white">FindWay</span>
+                  <span style={{color: '#3388FF'}}>.ai</span>
+                </div>
+              </div>
             </div>
             <p className="text-gray-400 mb-6 leading-relaxed max-w-md">
               Empowering students and professionals to discover their ideal career paths through advanced AI-driven assessments and personalized guidance.
@@ -39,19 +45,19 @@ export const Footer: React.FC = () => {
             <h3 className="font-bold text-white mb-6 text-lg">Quick Links</h3>
             <ul className="space-y-3">
               <li><a href="#" className="hover:text-blue-400 transition-all duration-300 flex items-center group">
-                <ArrowRightIcon className="h-4 w-4 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowRightIcon className="h-5 w-5 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
                 Home
               </a></li>
               <li><a href="#how-it-works" className="hover:text-blue-400 transition-all duration-300 flex items-center group">
-                <ArrowRightIcon className="h-4 w-4 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowRightIcon className="h-5 w-5 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
                 How It Works
               </a></li>
               <li><a href="#features" className="hover:text-blue-400 transition-all duration-300 flex items-center group">
-                <ArrowRightIcon className="h-4 w-4 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowRightIcon className="h-5 w-5 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
                 Features
               </a></li>
               <li><a href="#contact" className="hover:text-blue-400 transition-all duration-300 flex items-center group">
-                <ArrowRightIcon className="h-4 w-4 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowRightIcon className="h-5 w-5 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
                 Contact
               </a></li>
             </ul>
@@ -60,19 +66,19 @@ export const Footer: React.FC = () => {
             <h3 className="font-bold text-white mb-6 text-lg">Support</h3>
             <ul className="space-y-3">
               <li><a href="#" className="hover:text-blue-400 transition-all duration-300 flex items-center group">
-                <ArrowRightIcon className="h-4 w-4 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowRightIcon className="h-5 w-5 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
                 Help Center
               </a></li>
               <li><a href="#" className="hover:text-blue-400 transition-all duration-300 flex items-center group">
-                <ArrowRightIcon className="h-4 w-4 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowRightIcon className="h-5 w-5 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
                 Privacy Policy
               </a></li>
               <li><a href="#" className="hover:text-blue-400 transition-all duration-300 flex items-center group">
-                <ArrowRightIcon className="h-4 w-4 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowRightIcon className="h-5 w-5 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
                 Terms of Service
               </a></li>
               <li><a href="mailto:support@findway.ai" className="hover:text-blue-400 transition-all duration-300 flex items-center group">
-                <ArrowRightIcon className="h-4 w-4 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowRightIcon className="h-5 w-5 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
                 Contact Support
               </a></li>
             </ul>

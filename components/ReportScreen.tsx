@@ -166,18 +166,26 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
       pdf.setLineWidth(0.8);
       pdf.roundedRect(12, 12, pdfWidth - 24, pdfHeight - 24, 8, 8);
   
-      // 🔹 Logo - using the same logo from header
-      try {
-        const logoUrl = 'https://i.postimg.cc/c4j4nLFd/Removal-40.png';
-        const logoWidth = 45;
-        const logoHeight = 45;
-        const logoX = (pdfWidth - logoWidth) / 2;
-        const logoY = 50;
-        pdf.addImage(logoUrl, 'PNG', logoX, logoY, logoWidth, logoHeight);
-      } catch (logoError) {
-        console.warn('Logo could not be added to PDF:', logoError);
-        // Continue without logo if it fails
-      }
+      // 🔹 Text Logo - FindWay.ai
+      const logoY = 50;
+      pdf.setFontSize(32);
+      pdf.setFont('helvetica', 'bold');
+      
+      // Calculate text width for centering
+      const findwayText = 'FindWay';
+      const aiText = '.ai';
+      const findwayWidth = pdf.getTextWidth(findwayText);
+      const aiWidth = pdf.getTextWidth(aiText);
+      const totalWidth = findwayWidth + aiWidth;
+      const logoX = (pdfWidth - totalWidth) / 2;
+      
+      // Draw "FindWay" in black
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(findwayText, logoX, logoY);
+      
+      // Draw ".ai" in blue
+      pdf.setTextColor(59, 130, 246); // Blue color
+      pdf.text(aiText, logoX + findwayWidth, logoY);
   
       // Title
       pdf.setFontSize(26).setTextColor('#1e293b').setFont('helvetica', 'bold');
