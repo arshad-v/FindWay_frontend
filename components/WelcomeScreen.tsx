@@ -23,7 +23,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
   return (
     <div className="bg-black relative">
         {/* Hero Section */}
-        <section className="relative text-center py-16 sm:py-24 md:py-40 overflow-hidden bg-black">
+        <section className="relative text-center py-20 sm:py-24 md:py-40 overflow-hidden bg-black">
             {/* Light Rays Background */}
             <div className="absolute inset-0 w-full h-full">
                 <LightRays
