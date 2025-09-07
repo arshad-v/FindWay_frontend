@@ -142,7 +142,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
       const margin = 10;
       const headerHeight = 20;
       const footerHeight = 10;
-      const contentWidth = pdfWidth - (2 * margin);
+      const contentWidth = pdfWidth; // Full width for content pages
       const contentHeight = pdfHeight - headerHeight - footerHeight - margin;
   
       const imgProps = pdf.getImageProperties(imgData);
@@ -255,7 +255,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
   
         const topOffset = headerHeight + 8;
         const usableHeight = pdfHeight - topOffset - footerHeight - 5;
-        pdf.addImage(pageImgData, 'PNG', margin, topOffset, imgWidth, usableHeight);
+        pdf.addImage(pageImgData, 'PNG', 0, topOffset, imgWidth, usableHeight);
   
         yPosition += contentHeight;
         pageNumber++;
