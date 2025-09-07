@@ -110,6 +110,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
     const contentToCapture = reportContentRef.current;
     if (!contentToCapture) {
       console.error("Report content element not found.");
+      alert("Unable to generate PDF. Please refresh the page and try again.");
       return;
     }
   
@@ -118,10 +119,17 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
     elementsToHide.forEach(el => { el.style.display = 'none'; });
   
     try {
+      // Add a small delay to ensure DOM is ready
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const canvas = await html2canvas(contentToCapture, {
         scale: 2,
         backgroundColor: '#ffffff',
         useCORS: true,
+        allowTaint: true,
+        logging: false,
+        height: contentToCapture.scrollHeight,
+        width: contentToCapture.scrollWidth,
       });
   
       const imgData = canvas.toDataURL('image/png');
@@ -158,13 +166,18 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
       pdf.setLineWidth(0.8);
       pdf.roundedRect(12, 12, pdfWidth - 24, pdfHeight - 24, 8, 8);
   
-      // 🔹 Logo (update path or use base64 if needed)
-      const logoUrl = '/path/to/findway-logo.png';
-      const logoWidth = 45;
-      const logoHeight = 45;
-      const logoX = (pdfWidth - logoWidth) / 2;
-      const logoY = 50;
-      pdf.addImage(logoUrl, 'PNG', logoX, logoY, logoWidth, logoHeight);
+      // 🔹 Logo - using the same logo from header
+      try {
+        const logoUrl = 'https://i.postimg.cc/c4j4nLFd/Removal-40.png';
+        const logoWidth = 45;
+        const logoHeight = 45;
+        const logoX = (pdfWidth - logoWidth) / 2;
+        const logoY = 50;
+        pdf.addImage(logoUrl, 'PNG', logoX, logoY, logoWidth, logoHeight);
+      } catch (logoError) {
+        console.warn('Logo could not be added to PDF:', logoError);
+        // Continue without logo if it fails
+      }
   
       // Title
       pdf.setFontSize(26).setTextColor('#1e293b').setFont('helvetica', 'bold');
@@ -248,12 +261,37 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
         pageNumber++;
       }
   
-      pdf.save(`FindWay.ai_Career_Report_${userData.name.replace(/\s+/g, '_')}.pdf`);
+      // Generate safe filename
+      const safeUserName = userData.name.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
+      const filename = `FindWay_Career_Report_${safeUserName}_${new Date().toISOString().split('T')[0]}.pdf`;
+      
+      pdf.save(filename);
+      
+      // Success notification
+      console.log('PDF generated successfully:', filename);
+      
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("Sorry, there was an error generating the PDF. Please try again.");
+      
+      // More specific error handling
+      let errorMessage = "Sorry, there was an error generating the PDF. Please try again.";
+      
+      if (error instanceof Error) {
+        if (error.message.includes('canvas')) {
+          errorMessage = "Unable to capture report content. Please scroll to the top and try again.";
+        } else if (error.message.includes('network') || error.message.includes('CORS')) {
+          errorMessage = "Network error while generating PDF. Please check your connection and try again.";
+        }
+      }
+      
+      alert(errorMessage);
     } finally {
-      elementsToHide.forEach(el => { el.style.display = ''; });
+      // Restore hidden elements
+      elementsToHide.forEach(el => { 
+        if (el.style.display === 'none') {
+          el.style.display = ''; 
+        }
+      });
       setIsDownloading(false);
     }
   };  
@@ -263,33 +301,69 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
   return (
     <div className="bg-slate-50">
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md shadow-sm pdf-hide">
-        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div className="flex items-center gap-3">
-                <CompassIcon className="h-8 w-8 text-indigo-600" />
-                <div>
-                    <h1 className="text-xl font-bold text-slate-800">Your Career Report</h1>
+        <div className="container mx-auto px-4 py-3">
+            {/* Mobile Layout */}
+            <div className="md:hidden">
+                {/* Buttons First */}
+                <div className="flex gap-3 justify-center mb-6">
+                    <button onClick={onRetake} className="flex items-center px-4 py-2.5 bg-white text-slate-700 rounded-lg border border-slate-300 hover:bg-slate-100 transition-colors font-semibold text-sm shadow-sm">
+                        <RefreshCwIcon className="h-4 w-4 mr-2" /> Retake
+                    </button>
+                    <button onClick={downloadPdf} disabled={isDownloading} className="flex items-center px-4 py-2.5 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-400 disabled:cursor-wait text-sm">
+                        {isDownloading ? (
+                            <>
+                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Generating...
+                            </>
+                        ) : (
+                            <>
+                                <DownloadIcon className="h-4 w-4 mr-2" /> PDF
+                            </>
+                        )}
+                    </button>
+                </div>
+                {/* Heading Below */}
+                <div className="text-center">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                        <CompassIcon className="h-6 w-6 text-indigo-600" />
+                        <h1 className="text-lg font-bold text-slate-800">Your Career Report</h1>
+                    </div>
                     <p className="text-sm text-slate-500">For {userData.name}</p>
                 </div>
             </div>
-            <div className="flex gap-3 flex-shrink-0">
-                <button onClick={onRetake} className="flex items-center px-4 py-2 bg-white text-slate-700 rounded-lg border border-slate-300 hover:bg-slate-100 transition-colors font-semibold">
-                    <RefreshCwIcon className="h-4 w-4 mr-2" /> Retake Test
-                </button>
-                <button onClick={downloadPdf} disabled={isDownloading} className="flex items-center px-5 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-400 disabled:cursor-wait">
-                    {isDownloading ? (
-                        <>
-                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Generating...
-                        </>
-                    ) : (
-                        <>
-                            <DownloadIcon className="h-5 w-5 mr-2" /> Download PDF
-                        </>
-                    )}
-                </button>
+
+            {/* Desktop Layout */}
+            <div className="hidden md:flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                    <CompassIcon className="h-8 w-8 text-indigo-600" />
+                    <div>
+                        <h1 className="text-xl font-bold text-slate-800">Your Career Report</h1>
+                        <p className="text-sm text-slate-500">For {userData.name}</p>
+                    </div>
+                </div>
+                <div className="flex gap-3 flex-shrink-0">
+                    <button onClick={onRetake} className="flex items-center px-4 py-2 bg-white text-slate-700 rounded-lg border border-slate-300 hover:bg-slate-100 transition-colors font-semibold">
+                        <RefreshCwIcon className="h-4 w-4 mr-2" /> Retake Test
+                    </button>
+                    <button onClick={downloadPdf} disabled={isDownloading} className="flex items-center px-5 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-400 disabled:cursor-wait">
+                        {isDownloading ? (
+                            <>
+                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Generating...
+                            </>
+                        ) : (
+                            <>
+                                <DownloadIcon className="h-5 w-5 mr-2" /> Download PDF
+                            </>
+                        )}
+                    </button>
+                </div>
             </div>
         </div>
       </header>
