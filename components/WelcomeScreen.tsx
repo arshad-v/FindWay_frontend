@@ -101,6 +101,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                     </SignedIn>
                     <p className="text-gray-400 mt-3 sm:mt-4 text-xs sm:text-sm px-5">✨ Quick signup • Takes 5 minutes • Instant results</p>
                 </div>
+                
+            </div>
 
                 <div className="relative mt-0.05" style={{ pointerEvents: 'none', opacity: 0.1 }}>
     <div className="relative mt-0.05" style={{ pointerEvents: 'none', opacity: 0.1 }}>
