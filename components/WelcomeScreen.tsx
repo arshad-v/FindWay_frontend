@@ -103,14 +103,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                 </div>
 
                 <div className="relative mt-0.05" style={{ pointerEvents: 'none', opacity: 0.1 }}>
+    <div className="relative mt-0.05" style={{ pointerEvents: 'none', opacity: 0.1 }}>
     <div className="block sm:hidden mb-16"></div>
 
     <div className="flex items-center justify-center sm:justify-between px-4 sm:px-6">
-        {/* Logo Image */}
+        {/* Logo Image shifted left */}
         <img
             src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png"
             alt="FindWay.ai Logo"
-            className="h-[8rem] sm:h-[12rem] md:h-[14rem] w-auto mr-12 sm:mr-20"
+            className="h-[8rem] sm:h-[12rem] md:h-[14rem] w-auto -translate-x-12 sm:-translate-x-20"
             style={{ pointerEvents: 'none' }}
         />
 
