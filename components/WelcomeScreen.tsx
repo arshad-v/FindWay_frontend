@@ -41,30 +41,27 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                     className="hero-light-rays"
                 />
             </div>
-            <div className="container mx-auto px-4 sm:px-6 relative z-10 pt-10 sm:pt-0">
-                <div className="h-[4.5rem] sm:h-auto">
-                    <h1 className="text-3xl sm:text-5xl md:text-7xl font-extrabold text-white mb-8 sm:mb-8 md:mb-10 tracking-tight leading-tight">
-                        <TextType 
-                            text={["Discover Your Future Career", "Find Your Perfect Path", "Shape Your Dream Career"]}
-                            typingSpeed={75}
-                            pauseDuration={1500}
-                            showCursor={true}
-                            cursorCharacter="|"
-                            cursorClassName="text-blue-400"
-                            textColors={["#ffffff", "#60a5fa", "#34d399"]}
-                            as="span"
-                            className="inline-block text-center w-full"
-                            startOnVisible={true}
-                            loop={true}
-                        />
-                    </h1>
-                </div>
-                <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mt-4 sm:mt-0 mb-12 sm:mb-12 leading-relaxed px-2">
+            <div className="container mx-auto px-4 sm:px-6 relative z-10">
+                <h1 className="text-3xl sm:text-5xl md:text-7xl font-extrabold text-white mb-6 sm:mb-8 tracking-tight leading-tight">
+                    <TextType 
+                        text={["Discover Your Future Career", "Find Your Perfect Path", "Shape Your Dream Career"]}
+                        typingSpeed={75}
+                        pauseDuration={1500}
+                        showCursor={true}
+                        cursorCharacter="|"
+                        cursorClassName="text-blue-400"
+                        textColors={["#ffffff", "#60a5fa", "#34d399"]}
+                        as="span"
+                        className="inline-block text-center w-full"
+                        startOnVisible={true}
+                        loop={true}
+                    />
+                </h1>
+                <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-8 sm:mb-12 leading-relaxed px-2">
                     Stop guessing. Start knowing. Our AI-driven assessment provides deep, personalized insights to guide you toward a career you'll love.
                 </p>
-
-                {error && (
-                    <div className="max-w-xl mx-auto bg-red-900/20 border border-red-500/50 backdrop-blur-sm p-6 mb-12 sm:mb-8 text-left rounded-xl">
+                 {error && (
+                    <div className="max-w-xl mx-auto bg-red-900/20 border border-red-500/50 backdrop-blur-sm p-6 mb-8 text-left rounded-xl">
                         <div className="flex">
                             <div className="py-1">
                                <AlertTriangleIcon className="h-6 w-6 text-red-500 mr-3" />
@@ -76,7 +73,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                         </div>
                     </div>
                 )}
-
                 <div>
                     <SignedOut>
                         <SignInButton>
@@ -99,32 +95,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                             <ArrowRightIcon className="ml-2 sm:ml-3 h-5 w-5 sm:h-6 sm:w-6" />
                         </button>
                     </SignedIn>
-                    <p className="text-gray-400 mt-3 sm:mt-4 text-xs sm:text-sm px-5">✨ Quick signup • Takes 5 minutes • Instant results</p>
+                    <p className="text-gray-400 mt-3 sm:mt-4 text-xs sm:text-sm px-2">✨ Quick signup • Takes 5 minutes • Instant results</p>
                 </div>
                 
-            </div>
-
-                <div className="relative mt-0.05" style={{ pointerEvents: 'none', opacity: 0.1 }}>
-    <div className="relative mt-0.05" style={{ pointerEvents: 'none', opacity: 0.1 }}>
-    <div className="block sm:hidden mb-16"></div>
-
-    <div className="flex items-center justify-center sm:justify-between px-4 sm:px-6">
-        {/* Logo Image shifted left by using negative margin */}
-        <img
-            src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png"
-            alt="FindWay.ai Logo"
-            className="h-[8rem] sm:h-[12rem] md:h-[14rem] w-auto -ml-16 sm:-ml-32"
-            style={{ pointerEvents: 'none' }}
-        />
-
-        {/* App Name Text */}
-        <div className="hidden sm:block text-[8rem] sm:text-[10rem] md:text-[12rem] font-extrabold text-gray-500 whitespace-nowrap" style={{ pointerEvents: 'none' }}>
-            <span>FindWay</span><span>.ai</span>
-        </div>
-    </div>
-</div>
-
-
+                
             </div>
         </section>
 
