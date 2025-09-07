@@ -21,7 +21,7 @@ const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; children: Re
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) => {
   return (
-    <div className="bg-black relative">
+    <div className="bg-black relative min-h-screen w-full overflow-x-hidden">
         {/* Hero Section */}
         <section className="relative text-center py-20 sm:py-24 md:py-40 overflow-hidden bg-black">
             {/* Light Rays Background */}

@@ -207,7 +207,7 @@ const App: React.FC = () => {
   const isHomeScreen = appState === 'home';
 
   return (
-    <div className="bg-black min-h-screen text-gray-100 flex flex-col">
+    <div className="bg-black min-h-screen text-gray-100 flex flex-col w-full overflow-x-hidden">
       <Header onStartTest={handleStartTest} onGoHome={handleGoHome} onViewReport={handleViewReport} />
       <main className="flex-grow">
         <SignedIn>

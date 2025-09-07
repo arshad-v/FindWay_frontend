@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CompassIcon, ArrowRightIcon } from './icons';
 import { 
   SignedIn,
@@ -16,6 +16,24 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewReport }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMobileMenuOpen]);
 
   return (
     <header className="sticky top-0 z-50 bg-slate-800/90 backdrop-blur-xl border border-slate-600 shadow-2xl rounded-3xl mx-6 sm:mx-12 mt-4 sm:mt-6">
@@ -101,8 +119,20 @@ export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewRep
           </SignedIn>
         </div>
 
-        {/* Mobile Hamburger Menu */}
-        <div className="md:hidden flex items-center">
+        {/* Mobile Right Side */}
+        <div className="md:hidden flex items-center gap-3">
+          <SignedOut>
+            <SignInButton>
+              <button className="text-gray-300 hover:text-blue-400 transition-colors duration-300">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="text-gray-300 hover:text-white transition-colors duration-300 p-2"
@@ -120,7 +150,7 @@ export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewRep
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-6 right-6 mt-2 bg-slate-800/95 backdrop-blur-xl border border-slate-600 rounded-2xl shadow-2xl overflow-hidden">
+        <div ref={menuRef} className="md:hidden absolute top-full left-6 right-6 mt-2 bg-slate-800/95 backdrop-blur-xl border border-slate-600 rounded-2xl shadow-2xl overflow-hidden">
           <div className="py-4">
             <button 
               onClick={() => {
@@ -150,21 +180,16 @@ export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewRep
             >
               Features
             </a>
-            <div className="border-t border-slate-600 mt-2 pt-2">
-              <SignedOut>
-                {onStartTest && (
+            {onStartTest && (
+              <div className="border-t border-slate-600 mt-2 pt-2">
+                <SignedOut>
                   <SignInButton>
                     <button className="block w-full text-left px-6 py-3 text-blue-400 font-semibold hover:bg-slate-700/50 transition-all duration-300">
                       Start Assessment
                     </button>
                   </SignInButton>
-                )}
-              </SignedOut>
-              <SignedIn>
-                <div className="px-6 py-3">
-                  <UserButton afterSignOutUrl="/" />
-                </div>
-                {onStartTest && (
+                </SignedOut>
+                <SignedIn>
                   <button
                     onClick={() => {
                       onStartTest();
@@ -174,9 +199,9 @@ export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewRep
                   >
                     Start Assessment
                   </button>
-                )}
-              </SignedIn>
-            </div>
+                </SignedIn>
+              </div>
+            )}
           </div>
         </div>
       )}
