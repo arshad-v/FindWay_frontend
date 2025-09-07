@@ -113,7 +113,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                             style={{ pointerEvents: 'none' }}
                         />
 
-                        <div className="hidden sm:block text-[8rem] sm:text-[10rem] md:text-[12rem] font-extrabold text-gray-500 whitespace-nowrap translate-x-[-2rem] sm:translate-x-[-3rem]" style={{ pointerEvents: 'none' }}>
+                        <div className="hidden sm:block text-[8rem] sm:text-[10rem] md:text-[12rem] font-extrabold text-gray-500 whitespace-nowrap translate-x-[-1rem] sm:translate-x-[-1.5rem]" style={{ pointerEvents: 'none' }}>
                             <span>FindWay</span><span>.ai</span>
                         </div>
                     </div>
