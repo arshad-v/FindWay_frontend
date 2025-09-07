@@ -103,21 +103,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                 </div>
                 
             </div>
-          <div className="relative mt-0.05" style={{ pointerEvents: 'none', opacity: 0.1 }}> 
-                    <div className="block sm:hidden mb-16"></div>
-                    <div className="flex items-center justify-center sm:justify-between px-4 sm:px-6">
-                        <img
-                            src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png"
-                            alt="FindWay.ai Logo"
-                            className="h-[8rem] sm:h-[12rem] md:h-[14rem] w-auto"
-                            style={{ pointerEvents: 'none' }}
-                        />
+          {/* === Moved Background Logo + Text Below Button === */}
+    <div className="relative mt-6 sm:mt-10 pointer-events-none opacity-10">
+        <div className="flex items-center justify-between px-10">
+            <img
+                src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png"
+                alt="FindWay.ai Logo"
+                className="h-[10rem] sm:h-[12rem] md:h-[14rem] w-auto"
+            />
 
-                        <div className="hidden sm:block text-[8rem] sm:text-[10rem] md:text-[12rem] font-extrabold text-gray-500 whitespace-nowrap translate-x-[-1rem] sm:translate-x-[-1.5rem]" style={{ pointerEvents: 'none' }}>
-                            <span>FindWay</span><span>.ai</span>
-                        </div>
-                    </div>
-                </div>
+            <div className="text-[8rem] sm:text-[10rem] md:text-[12rem] font-extrabold text-gray-500 whitespace-nowrap translate-x-[-2rem] sm:translate-x-[-3rem]">
+                <span>FindWay</span><span>.ai</span>
+            </div>
+        </div>
+    </div>
+</div>
 
 
             </div>
