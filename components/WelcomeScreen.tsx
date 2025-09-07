@@ -104,7 +104,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
 
                 {/* Logo for Mobile, App Name for Web */}
                 <div className="relative mt-0.05 pointer-events-none opacity-10">
-                    <div className="block sm:hidden mb-16">
+                    <div className="block sm:hidden mb-32">
                         {/* Mobile: Show only logo */}
                         <div className="flex justify-center px-4">
                             <img
