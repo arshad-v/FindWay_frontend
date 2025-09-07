@@ -105,7 +105,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                 {/* Background Logo + Text */}
                 <div className="relative mt-0.05" style={{ pointerEvents: 'none', opacity: 0.1 }}>
                     <div className="block sm:hidden mb-16"></div>
-                    <div className="flex items-center justify-center sm:justify-between px-4 sm:px-6">
+                    <div className="flex items-center justify-center sm:justify-between px-1 sm:px-8">
                         <img
                             src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png"
                             alt="FindWay.ai Logo"
