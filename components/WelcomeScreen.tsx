@@ -103,8 +103,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                 </div>
                 
             </div>
-
-            <div className="relative mt-0.05" style={{ pointerEvents: 'none', opacity: 0.3 }}>
+          <div className="relative mt-0.05" style={{ pointerEvents: 'none', opacity: 0.3 }}>
     <div className="block sm:hidden mb-16"></div>
 
     <div className="flex items-center justify-center sm:justify-between px-4 sm:px-6">
@@ -122,6 +121,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
         </div>
     </div>
 </div>
+
 
 
 
