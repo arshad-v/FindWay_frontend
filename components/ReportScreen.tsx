@@ -368,11 +368,11 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
         </div>
       </header>
       
-      <div className="container mx-auto px-4 py-8">
-        <div ref={reportContentRef}>
-            <div className="space-y-8">
+      <div className="w-full px-0 py-4 md:py-8">
+        <div ref={reportContentRef} className="px-0">
+            <div className="space-y-4 md:space-y-8">
             
-            <div className="p-8 bg-slate-50 rounded-2xl print:p-6 print:shadow-none print:bg-white">
+            <div className="p-4 md:p-8 bg-slate-50 rounded-none print:p-6 print:shadow-none print:bg-white">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <SectionCard icon={<UserIcon className="h-8 w-8 text-indigo-500" />} title="AI Profile Summary">
                         <p className="leading-relaxed">{report.profileSummary}</p>
@@ -409,7 +409,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                 </div>
             </div>
             
-            <div className="p-8 bg-slate-50 rounded-2xl print:p-6 print:shadow-none print:bg-white">
+            <div className="p-4 md:p-8 bg-slate-50 rounded-none print:p-6 print:shadow-none print:bg-white">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                     <SectionCard icon={<LightbulbIcon className="h-8 w-8 text-yellow-500" />} title="Dominant Strengths">
                         <ul className="space-y-4">
@@ -457,7 +457,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
             </div>
             
             {report.interviewPrep && (
-                <div className="p-8 bg-slate-50 rounded-2xl print:p-6 print:shadow-none print:bg-white">
+                <div className="p-4 md:p-8 bg-slate-50 rounded-none print:p-6 print:shadow-none print:bg-white">
                     <SectionCard icon={<MicIcon className="h-8 w-8 text-teal-500" />} title="Interview Preparation Tips">
                         <div className="space-y-6">
                             <div>
@@ -492,7 +492,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                 </div>
             )}
 
-            <div className="p-8 bg-slate-50 rounded-2xl print:p-6 print:shadow-none print:bg-white">
+            <div className="p-4 md:p-8 bg-slate-50 rounded-none print:p-6 print:shadow-none print:bg-white">
                 <SectionCard icon={<FlagIcon className="h-8 w-8 text-indigo-500" />} title="Your Journey Forward">
                     <p className="leading-relaxed text-lg">{report.concludingRemarks}</p>
                 </SectionCard>
