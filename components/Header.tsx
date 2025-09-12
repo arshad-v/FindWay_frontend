@@ -50,13 +50,13 @@ export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewRep
           >
             <div className="flex items-center">
               <img 
-                src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png" 
-                alt="FindWay.ai Logo" 
+                src="https://iili.io/KIrXCNI.th.png" 
+                alt="CareerRoute.ai Logo" 
                 className="h-8 sm:h-10 w-auto"
               />
               <div className="text-2xl sm:text-3xl font-bold">
                 
-                <span className="text-white">FindWay</span>
+                <span className="text-white">CareerRoute</span>
                 <span style={{color: '#3388FF'}}>.ai</span>
                 
                 

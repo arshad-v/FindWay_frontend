@@ -29,8 +29,8 @@ export const LoadingScreen: React.FC = () => {
           <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping"></div>
           <div className="absolute inset-0 flex items-center justify-center">
             <img 
-              src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png" 
-              alt="FindWay.ai Logo" 
+              src="https://iili.io/KIrXCNI.th.png" 
+              alt="CareerRoute.ai Logo" 
               className="h-8 w-8 object-contain"
             />
           </div>

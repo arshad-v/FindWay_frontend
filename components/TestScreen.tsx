@@ -14,8 +14,8 @@ const QuestionLoader: React.FC = () => (
             <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500"></div>
             <div className="absolute inset-0 flex items-center justify-center">
                 <img 
-                    src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png" 
-                    alt="FindWay.ai Logo" 
+                    src="https://iili.io/KIrXCNI.th.png" 
+                    alt="CareerRoute.ai Logo" 
                     className="h-8 w-8 object-contain"
                 />
             </div>
@@ -162,7 +162,7 @@ export const TestScreen: React.FC<TestScreenProps> = ({ onTestComplete, userData
           disabled={currentQuestionIndex === 0}
           className="flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-gray-700 text-gray-300 rounded-xl hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-sm sm:text-base"
         >
-          <ArrowLeftIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+          <ArrowLeftIcon className="h-5 w-6 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
           Back
         </button>
 
@@ -172,7 +172,7 @@ export const TestScreen: React.FC<TestScreenProps> = ({ onTestComplete, userData
             disabled={!areAllQuestionsAnswered()}
             className="flex items-center px-4 sm:px-8 py-3 sm:py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-green-500/25 hover:scale-105 text-sm sm:text-base"
           >
-            <CheckIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+            <CheckIcon className="h-5 w-6 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
             <span className="hidden sm:inline">Finish & See Report</span>
             <span className="sm:hidden">Finish</span>
           </button>
@@ -183,7 +183,7 @@ export const TestScreen: React.FC<TestScreenProps> = ({ onTestComplete, userData
             className="flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 text-sm sm:text-base"
           >
             Next
-            <ArrowRightIcon className="h-4 w-4 sm:h-5 sm:w-5 ml-1 sm:ml-2" />
+            <ArrowRightIcon className="h-5 w-6 sm:h-5 sm:w-5 ml-1 sm:ml-2" />
           </button>
         )}
       </div>

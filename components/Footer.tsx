@@ -10,12 +10,12 @@ export const Footer: React.FC = () => {
             <div className="flex items-center mb-6">
               <div className="flex items-center gap-3">
                 <img 
-                  src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png" 
-                  alt="FindWay.ai Logo" 
+                  src="https://iili.io/KIrXCNI.th.png" 
+                  alt="CareerRoute.ai Logo" 
                   className="h-12 w-auto"
                 />
                 <div className="text-3xl font-bold">
-                  <span className="text-white">FindWay</span>
+                  <span className="text-white">CareerRoute</span>
                   <span style={{color: '#3388FF'}}>.ai</span>
                 </div>
               </div>
@@ -104,7 +104,7 @@ export const Footer: React.FC = () => {
         </div>
         
         <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-500 text-sm">&copy; {new Date().getFullYear()} FindWay.ai. All rights reserved.</p>
+          <p className="text-gray-500 text-sm">&copy; {new Date().getFullYear()} CareerRoute.ai. All rights reserved.</p>
           <div className="flex items-center space-x-6 mt-4 md:mt-0">
             <span className="text-gray-500 text-sm">Made in India</span>
           </div>

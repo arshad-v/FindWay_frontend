@@ -166,26 +166,26 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
       pdf.setLineWidth(0.8);
       pdf.roundedRect(12, 12, pdfWidth - 24, pdfHeight - 24, 8, 8);
   
-      // 🔹 Text Logo - FindWay.ai
+      // 🔹 Text Logo - CareerRoute.ai
       const logoY = 50;
       pdf.setFontSize(32);
       pdf.setFont('helvetica', 'bold');
       
       // Calculate text width for centering
-      const findwayText = 'FindWay';
+      const careerRouteText = 'CareerRoute';
       const aiText = '.ai';
-      const findwayWidth = pdf.getTextWidth(findwayText);
+      const careerRouteWidth = pdf.getTextWidth(careerRouteText);
       const aiWidth = pdf.getTextWidth(aiText);
-      const totalWidth = findwayWidth + aiWidth;
+      const totalWidth = careerRouteWidth + aiWidth;
       const logoX = (pdfWidth - totalWidth) / 2;
       
-      // Draw "FindWay" in black
+      // Draw "CareerRoute" in black
       pdf.setTextColor(0, 0, 0);
-      pdf.text(findwayText, logoX, logoY);
+      pdf.text(careerRouteText, logoX, logoY);
       
       // Draw ".ai" in blue
       pdf.setTextColor(59, 130, 246); // Blue color
-      pdf.text(aiText, logoX + findwayWidth, logoY);
+      pdf.text(aiText, logoX + careerRouteWidth, logoY);
   
       // Title
       pdf.setFontSize(26).setTextColor('#1e293b').setFont('helvetica', 'bold');
@@ -198,7 +198,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
   
       // Branding
       pdf.setFontSize(16).setTextColor('#3b82f6').setFont('helvetica', 'bold');
-      pdf.text('FindWay.ai', pdfWidth / 2, 140, { align: 'center' });
+      pdf.text('CareerRoute.ai', pdfWidth / 2, 140, { align: 'center' });
   
       // User Info
       pdf.setFontSize(13).setTextColor('#374151').setFont('helvetica', 'normal');
@@ -210,7 +210,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
       // Footer
       pdf.setFontSize(10).setTextColor('#9ca3af');
       pdf.text('Confidential Career Assessment Report', pdfWidth / 2, pdfHeight - 30, { align: 'center' });
-      pdf.text('www.findway.ai', pdfWidth / 2, pdfHeight - 20, { align: 'center' });
+      pdf.text('www.careerroute.ai', pdfWidth / 2, pdfHeight - 20, { align: 'center' });
   
       pdf.addPage();
       pageNumber++;
@@ -222,8 +222,8 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
         pdf.text(`Career Assessment Report`, margin, 18);
   
         pdf.setFontSize(14).setTextColor('#3b82f6').setFont('helvetica', 'bold');
-        const findwayText = 'FindWay.ai';
-        pdf.text(findwayText, pdfWidth - margin - pdf.getTextWidth(findwayText), 18);
+        const careerRouteText = 'CareerRoute.ai';
+        pdf.text(careerRouteText, pdfWidth - margin - pdf.getTextWidth(careerRouteText), 18);
   
         pdf.setFontSize(10).setTextColor('#64748b').setFont('helvetica', 'normal');
         pdf.text(`For: ${userData.name}`, margin, 27);
@@ -237,7 +237,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
         const pageText = `Page ${pageNum} of ${totalPages}`;
         pdf.text(pageText, pdfWidth - margin - pdf.getTextWidth(pageText), pdfHeight - 8);
   
-        const websiteText = 'www.findway.ai';
+        const websiteText = 'www.careerroute.ai';
         pdf.text(websiteText, (pdfWidth - pdf.getTextWidth(websiteText)) / 2, pdfHeight - 8);
       };
   
@@ -271,7 +271,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
   
       // Generate safe filename
       const safeUserName = userData.name.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
-      const filename = `FindWay_Career_Report_${safeUserName}_${new Date().toISOString().split('T')[0]}.pdf`;
+      const filename = `CareerRoute_Career_Report_${safeUserName}_${new Date().toISOString().split('T')[0]}.pdf`;
       
       pdf.save(filename);
       

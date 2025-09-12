@@ -60,7 +60,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                     </h1>
                 </div>
                 <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mt-4 sm:mt-0 mb-12 sm:mb-12 leading-relaxed px-2">
-                    Stop guessing. Start knowing. Our AI-driven assessment provides deep, personalized insights to guide you toward a career you'll love.
+                Do not guess your future. Let our powerful AI assess your strengths and interests to give you clear, personalized career advices – so you can find a path you will truly enjoy!
                 </p>
 
                 {error && (
@@ -105,19 +105,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                 {/* Logo for Mobile, App Name for Web */}
                 <div className="relative mt-16 sm:mt-0.05 pointer-events-none opacity-10">
                     <div className="block sm:hidden mb-32">
-                        {/* Mobile: Show only logo */}
-                        <div className="flex justify-center px-4">
+                        {/* Mobile: Show logo and app name */}
+                        <div className="flex flex-col items-center px-4">
                             <img
-                                src="https://i.postimg.cc/7LzzxY0t/3c95258d-781d-4c26-b284-cf0a52b8e28e-removalai-preview.png"
-                                alt="FindWay.ai Logo"
-                                className="h-[8rem] w-auto"
+                                src="https://iili.io/KIrXCNI.th.png"
+                                alt="CareerRoute.ai Logo"
+                                className="h-[8rem] w-auto mb-4"
                             />
+                            <div className="text-4xl font-extrabold text-white-500 opacity-100">
+                                <span>CareerRoute</span><span>.ai</span>
+                            </div>
                         </div>
                     </div>
                     {/* Web: Show only app name */}
                     <div className="hidden sm:flex justify-center px-4 sm:px-10">
                         <div className="text-[8rem] sm:text-[10rem] md:text-[12rem] font-extrabold text-gray-500 whitespace-nowrap">
-                            <span>FindWay</span><span>.ai</span>
+                            <span>CareerRoute</span><span>.ai</span>
                         </div>
                     </div>
                 </div>
