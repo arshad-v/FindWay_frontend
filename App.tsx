@@ -4,12 +4,13 @@ import { PreTestScreen } from './components/PreTestScreen';
 import { TestScreen } from './components/TestScreen';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ReportScreen } from './components/ReportScreen';
+import { ChatCoachScreen } from './components/ChatCoachScreen';
 import { PricingScreen } from './components/PricingScreen';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { type AppState, type Answer, type ReportData, type UserData, type RawScores, Question } from './types';
 import { calculateScores } from './utils/scoreCalculator';
-import { generateCareerReport } from './services/geminiService';
+import { generateCareerReport } from './services/aiAgents';
 import { SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
 
 const App: React.FC = () => {
@@ -127,9 +128,9 @@ const App: React.FC = () => {
       setError(null);
     } else {
       // Try to load from localStorage or show error
-      const savedUserData = localStorage.getItem('findway_userData');
-      const savedScores = localStorage.getItem('findway_scores');
-      const savedReport = localStorage.getItem('findway_report');
+      const savedUserData = localStorage.getItem('findway_last_userdata');
+      const savedScores = localStorage.getItem('findway_last_scores');
+      const savedReport = localStorage.getItem('findway_last_report');
       
       if (savedUserData && savedScores && savedReport) {
         try {
@@ -148,11 +149,22 @@ const App: React.FC = () => {
         setError("No previous report found. Please take the assessment first.");
       }
     }
-  }, []);
+  }, [isLoaded, isSignedIn, report, scores, userData]);
 
   const handlePricing = useCallback(() => {
     setAppState('pricing');
     setError(null);
+  }, []);
+
+  const handleChatWithCoach = useCallback(() => {
+    if (report && userData) {
+      setAppState('chat-coach');
+      setError(null);
+    }
+  }, [report, userData]);
+
+  const handleBackFromChat = useCallback(() => {
+    setAppState('report');
   }, []);
   
   // Initialize app state on mount
@@ -184,7 +196,7 @@ const App: React.FC = () => {
         return <PricingScreen onBack={() => setAppState('home')} />;
       case 'report':
         if (report && scores && userData) {
-          return <ReportScreen report={report} scores={scores} userData={userData} onRetake={handleRetakeTest} />;
+          return <ReportScreen report={report} scores={scores} userData={userData} onRetake={handleRetakeTest} onChatWithCoach={handleChatWithCoach} />;
         }
         // Show error message on report page when no report is available
         return (
@@ -210,17 +222,24 @@ const App: React.FC = () => {
             </button>
           </div>
         );
+      case 'chat-coach':
+        if (report && userData) {
+          return <ChatCoachScreen report={report} userData={userData} onBack={handleBackFromChat} />;
+        }
+        // Fallback to report if no data
+        setAppState('report');
+        return null;
       default:
         return <HomeScreen onStartTest={handleStartTest} />;
     }
   };
 
-  const isReportScreen = appState === 'report';
-  const isHomeScreen = appState === 'home';
+  const isReportScreen = appState === 'report' || appState === 'chat-coach';
+  const showHeader = appState !== 'chat-coach';
 
   return (
     <div className="bg-black min-h-screen text-gray-100 flex flex-col w-full overflow-x-hidden">
-      <Header onStartTest={handleStartTest} onGoHome={handleGoHome} onViewReport={handleViewReport} onPricing={handlePricing} />
+      {showHeader && <Header onStartTest={handleStartTest} onGoHome={handleGoHome} onViewReport={handleViewReport} onPricing={handlePricing} />}
       <main className="flex-grow">
         <SignedIn>
           {renderContent()}

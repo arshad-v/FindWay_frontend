@@ -236,42 +236,40 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                     </div>
                 </div>
 
-                {/* PDF Report Feature */}
+                {/* Career Coach.ai Feature */}
                 <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 backdrop-blur-sm border border-blue-500/30 rounded-3xl p-8 sm:p-12 text-center">
                     <div className="flex justify-center mb-6">
                         <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-3xl bg-blue-500/20 flex items-center justify-center">
-                            <svg className="h-8 w-8 sm:h-10 sm:w-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
+                            <img src="https://iili.io/KIrXCNI.th.png" alt="CareerRoute.ai Logo" className="h-10 w-10 sm:h-12 sm:w-12 rounded-full" />
                         </div>
                     </div>
-                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6">Downloadable PDF Career Report</h3>
+                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6">Career Coach.ai - Your Personal AI Mentor</h3>
                     <p className="text-base sm:text-lg text-gray-300 max-w-3xl mx-auto mb-6 sm:mb-8 leading-relaxed">
-                        Receive a comprehensive, professionally formatted PDF report containing all your assessment results, career recommendations, and personalized development roadmap.
+                        Get instant, personalized career guidance through our intelligent AI coach. Ask questions, explore career paths, and receive tailored advice based on your unique assessment results.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
                         <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-600/50">
-                            <div className="text-2xl sm:text-3xl font-bold text-blue-400 mb-2">25+</div>
-                            <div className="text-sm text-gray-300">Pages of Insights</div>
+                            <div className="text-2xl sm:text-3xl font-bold text-blue-400 mb-2">24/7</div>
+                            <div className="text-sm text-gray-300">Available Anytime</div>
                         </div>
                         <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-600/50">
-                            <div className="text-2xl sm:text-3xl font-bold text-green-400 mb-2">50+</div>
-                            <div className="text-sm text-gray-300">Career Matches</div>
+                            <div className="text-2xl sm:text-3xl font-bold text-green-400 mb-2">∞</div>
+                            <div className="text-sm text-gray-300">Unlimited Questions</div>
                         </div>
                         <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-600/50">
-                            <div className="text-2xl sm:text-3xl font-bold text-purple-400 mb-2">10+</div>
-                            <div className="text-sm text-gray-300">Skill Categories</div>
+                            <div className="text-2xl sm:text-3xl font-bold text-purple-400 mb-2">AI</div>
+                            <div className="text-sm text-gray-300">Powered Insights</div>
                         </div>
                         <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-600/50">
-                            <div className="text-2xl sm:text-3xl font-bold text-orange-400 mb-2">∞</div>
-                            <div className="text-sm text-gray-300">Lifetime Access</div>
+                            <div className="text-2xl sm:text-3xl font-bold text-orange-400 mb-2">100%</div>
+                            <div className="text-sm text-gray-300">Personalized</div>
                         </div>
                     </div>
                     <div className="flex flex-wrap justify-center gap-3 sm:gap-4 text-sm text-gray-300">
-                        <span className="bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-600/50">📊 Visual Charts & Graphs</span>
-                        <span className="bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-600/50">🎯 Personalized Action Plan</span>
-                        <span className="bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-600/50">📚 Resource Recommendations</span>
-                        <span className="bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-600/50">💼 Interview Preparation Tips</span>
+                        <span className="bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-600/50">💬 Natural Conversations</span>
+                        <span className="bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-600/50">🎯 Career Path Guidance</span>
+                        <span className="bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-600/50">📚 Skill Development Tips</span>
+                        <span className="bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-600/50">💼 Industry Insights</span>
                     </div>
                 </div>
             </div>

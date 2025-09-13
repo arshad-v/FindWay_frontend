@@ -4,13 +4,14 @@ import html2canvas from 'html2canvas';
 import { type ReportData, type RawScores, type UserData } from '../types';
 import { getNormalizedScoresForChart } from '../utils/scoreCalculator';
 import { ScoreChart } from './ScoreChart';
-import { LightbulbIcon, BriefcaseIcon, GrowthIcon, DownloadIcon, RefreshCwIcon, StarIcon, TargetIcon, BookOpenIcon, ZapIcon, CodeIcon, DollarSignIcon, PaletteIcon, StethoscopeIcon, UsersIcon, UserIcon, CompassIcon, FlagIcon, MicIcon, HelpCircleIcon } from './icons';
+import { LightbulbIcon, BriefcaseIcon, GrowthIcon, DownloadIcon, RefreshCwIcon, StarIcon, TargetIcon, BookOpenIcon, ZapIcon, CodeIcon, DollarSignIcon, PaletteIcon, StethoscopeIcon, UsersIcon, UserIcon, CompassIcon, FlagIcon, MessageCircleIcon } from './icons';
 
 interface ReportScreenProps {
   report: ReportData;
   scores: RawScores;
   userData: UserData;
   onRetake: () => void;
+  onChatWithCoach?: () => void;
 }
 
 const SectionCard: React.FC<{ icon: React.ReactNode; title: string; children: React.ReactNode, className?: string }> = ({ icon, title, children, className = '' }) => (
@@ -101,7 +102,7 @@ const DetailedScores: React.FC<{scores: RawScores, analysis: ReportData['detaile
     );
 };
 
-export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, userData, onRetake }) => {
+export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, userData, onRetake, onChatWithCoach }) => {
   const reportContentRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const normalizedScores = getNormalizedScoresForChart(scores);
@@ -313,25 +314,36 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
             {/* Mobile Layout */}
             <div className="md:hidden">
                 {/* Buttons First */}
-                <div className="flex gap-3 justify-center mb-6">
-                    <button onClick={onRetake} className="flex items-center px-4 py-2.5 bg-white text-slate-700 rounded-lg border border-slate-300 hover:bg-slate-100 transition-colors font-semibold text-sm shadow-sm">
-                        <RefreshCwIcon className="h-6 w-7 mr-2" /> Retake
-                    </button>
-                    <button onClick={downloadPdf} disabled={isDownloading} className="flex items-center px-4 py-2.5 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-400 disabled:cursor-wait text-sm">
-                        {isDownloading ? (
-                            <>
-                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Generating...
-                            </>
-                        ) : (
-                            <>
-                                <DownloadIcon className="h-6 w-7 mr-2" /> PDF
-                            </>
+                <div className="flex flex-col gap-2 mb-6">
+                    <div className="flex flex-col gap-2">
+                        <button onClick={onRetake} className="flex items-center justify-center px-4 py-2.5 bg-white text-slate-700 rounded-lg border border-slate-300 hover:bg-slate-100 transition-colors font-semibold text-sm shadow-sm">
+                            <RefreshCwIcon className="h-6 w-6 mr-2" /> Retake Test
+                        </button>
+                        <button onClick={downloadPdf} disabled={isDownloading} className="flex items-center justify-center px-4 py-2.5 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-400 disabled:cursor-wait text-sm">
+                            {isDownloading ? (
+                                <>
+                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Generating...
+                                </>
+                            ) : (
+                                <>
+                                    <DownloadIcon className="h-6 w-6 mr-2" /> Download PDF
+                                </>
+                            )}
+                        </button>
+                        {onChatWithCoach && (
+                            <button 
+                                onClick={onChatWithCoach} 
+                                className="flex items-center justify-center px-4 py-2.5 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-colors shadow-sm text-sm"
+                            >
+                                <MessageCircleIcon className="h-6 w-6 mr-2" />
+                                Chat with AI Career Coach
+                            </button>
                         )}
-                    </button>
+                    </div>
                 </div>
                 {/* Heading Below */}
                 <div className="text-center">
@@ -352,14 +364,16 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                         <p className="text-sm text-slate-500">For {userData.name}</p>
                     </div>
                 </div>
-                <div className="flex gap-3 flex-shrink-0">
-                    <button onClick={onRetake} className="flex items-center px-4 py-2 bg-white text-slate-700 rounded-lg border border-slate-300 hover:bg-slate-100 transition-colors font-semibold">
-                        <RefreshCwIcon className="h-6 w-7 mr-2" /> Retake Test
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 flex-shrink-0">
+                    <button onClick={onRetake} className="flex items-center justify-center px-3 sm:px-4 py-2 bg-white text-slate-700 rounded-lg border border-slate-300 hover:bg-slate-100 transition-colors font-semibold text-sm sm:text-base">
+                        <RefreshCwIcon className="h-4 w-4 sm:h-6 sm:w-7 mr-1 sm:mr-2" /> 
+                        <span className="hidden sm:inline">Retake Test</span>
+                        <span className="sm:hidden">Retake</span>
                     </button>
-                    <button onClick={downloadPdf} disabled={isDownloading} className="flex items-center px-5 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-400 disabled:cursor-wait">
+                    <button onClick={downloadPdf} disabled={isDownloading} className="flex items-center justify-center px-3 sm:px-5 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-400 disabled:cursor-wait text-sm sm:text-base">
                         {isDownloading ? (
                             <>
-                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <svg className="animate-spin -ml-1 mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
@@ -367,20 +381,32 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                             </>
                         ) : (
                             <>
-                                <DownloadIcon className="h-6 w-7 mr-2" /> Download PDF
+                                <DownloadIcon className="h-4 w-4 sm:h-6 sm:w-7 mr-1 sm:mr-2" /> 
+                                <span className="hidden sm:inline">Download PDF</span>
+                                <span className="sm:hidden">PDF</span>
                             </>
                         )}
                     </button>
+                    {onChatWithCoach && (
+                        <button 
+                            onClick={onChatWithCoach} 
+                            className="flex items-center justify-center px-3 sm:px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-colors shadow-sm text-sm sm:text-base"
+                        >
+                            <MessageCircleIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                            <span className="hidden sm:inline">Chat with AI Career Coach</span>
+                            <span className="sm:hidden">Chat Coach</span>
+                        </button>
+                    )}
                 </div>
             </div>
         </div>
       </header>
       
       <div className="w-full px-0 py-4 md:py-8">
-        <div ref={reportContentRef} className="px-0">
+        <div ref={reportContentRef} className="w-full max-w-none">
             <div className="space-y-4 md:space-y-8">
             
-            <div className="p-4 md:p-8 bg-slate-50 rounded-none print:p-6 print:shadow-none print:bg-white">
+            <div className="p-4 md:p-8 bg-slate-50 rounded-none print:p-6 print:shadow-none print:bg-white w-full">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <SectionCard icon={<UserIcon className="h-8 w-8 text-indigo-500" />} title="AI Profile Summary">
                         <p className="leading-relaxed">{report.profileSummary}</p>
@@ -391,23 +417,67 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                 </div>
                 <div className="mt-8">
                     <SectionCard icon={<BriefcaseIcon className="h-8 w-8 text-indigo-500" />} title="Top 3 Career Matches">
-                        <div className="space-y-6 mt-2">
+                        <div className="space-y-8 mt-2">
                             {report.careerMatches?.map((match, index) => (
-                                <div key={index} className="bg-slate-100 p-5 rounded-xl border border-slate-200 flex flex-col sm:flex-row gap-5 items-start">
-                                    <div className="flex-shrink-0 bg-indigo-500 rounded-xl h-16 w-16 flex items-center justify-center">
-                                        <CareerIcon title={match.title} />
-                                    </div>
-                                    <div className="flex-grow">
-                                        <div className="flex flex-col sm:flex-row justify-between sm:items-center">
-                                            <h4 className="font-bold text-lg text-indigo-900">{match.title}</h4>
-                                            <div className="text-sm font-bold text-indigo-600 bg-indigo-100 px-3 py-1 rounded-full self-start mt-2 sm:mt-0">
-                                                {match.compatibility}% Match
-                                            </div>
+                                <div key={index} className="bg-slate-100 p-6 rounded-xl border border-slate-200">
+                                    <div className="flex flex-col lg:flex-row gap-6 items-start">
+                                        <div className="flex-shrink-0 bg-indigo-500 rounded-xl h-16 w-16 flex items-center justify-center">
+                                            <CareerIcon title={match.title} />
                                         </div>
-                                        <p className="text-slate-700 mt-2 mb-4 text-sm leading-6">{match.description}</p>
-                                        <div className="text-xs space-y-2 bg-white/80 p-3 rounded-lg border border-slate-200/80">
-                                            <p><strong className="font-semibold text-slate-600">Trends:</strong> {match.trends}</p>
-                                            <p><strong className="font-semibold text-slate-600">Education:</strong> {match.education}</p>
+                                        <div className="flex-grow w-full">
+                                            <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4">
+                                                <h4 className="font-bold text-xl text-indigo-900">{match.title}</h4>
+                                                <div className="text-sm font-bold text-indigo-600 bg-indigo-100 px-3 py-1 rounded-full self-start mt-2 sm:mt-0">
+                                                    {match.compatibility}% Match
+                                                </div>
+                                            </div>
+                                            <p className="text-slate-700 mb-6 text-sm leading-6">{match.description}</p>
+                                            
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                {/* Job Scope & Features */}
+                                                <div className="bg-white/90 p-4 rounded-lg border border-slate-200">
+                                                    <h5 className="font-semibold text-slate-700 mb-3 flex items-center">
+                                                        <TargetIcon className="h-4 w-4 mr-2 text-blue-500" />
+                                                        Job Scope & Features
+                                                    </h5>
+                                                    <div className="space-y-2 text-xs">
+                                                        <p><strong>Key Responsibilities:</strong> {match.keyResponsibilities || 'Strategic planning, team leadership, project management, stakeholder communication, performance optimization'}</p>
+                                                        <p><strong>Required Skills:</strong> {match.requiredSkills || 'Technical expertise, analytical thinking, communication, problem-solving, leadership'}</p>
+                                                        <p><strong>Growth Path:</strong> {match.growthPath || 'Junior → Senior → Lead → Manager → Director → VP'}</p>
+                                                    </div>
+                                                </div>
+
+                                                {/* Salary Information */}
+                                                <div className="bg-white/90 p-4 rounded-lg border border-slate-200">
+                                                    <h5 className="font-semibold text-slate-700 mb-3 flex items-center">
+                                                        <DollarSignIcon className="h-4 w-4 mr-2 text-green-500" />
+                                                        Salary Ranges
+                                                    </h5>
+                                                    <div className="space-y-3 text-xs">
+                                                        <div className="bg-green-50 p-3 rounded border-l-4 border-green-400">
+                                                            <p className="font-semibold text-green-800">🇮🇳 India</p>
+                                                            <p><strong>Entry Level:</strong> {match.salaryIndia?.entry || '₹3-8 LPA'}</p>
+                                                            <p><strong>Mid Level:</strong> {match.salaryIndia?.mid || '₹8-20 LPA'}</p>
+                                                            <p><strong>Senior Level:</strong> {match.salaryIndia?.senior || '₹20-50 LPA'}</p>
+                                                        </div>
+                                                        <div className="bg-blue-50 p-3 rounded border-l-4 border-blue-400">
+                                                            <p className="font-semibold text-blue-800">🌍 Abroad (USD)</p>
+                                                            <p><strong>Entry Level:</strong> {match.salaryAbroad?.entry || '$50K-80K'}</p>
+                                                            <p><strong>Mid Level:</strong> {match.salaryAbroad?.mid || '$80K-150K'}</p>
+                                                            <p><strong>Senior Level:</strong> {match.salaryAbroad?.senior || '$150K-300K+'}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                                <div className="text-xs bg-white/80 p-3 rounded-lg border border-slate-200/80">
+                                                    <p><strong className="font-semibold text-slate-600">Market Trends:</strong> {match.trends}</p>
+                                                </div>
+                                                <div className="text-xs bg-white/80 p-3 rounded-lg border border-slate-200/80">
+                                                    <p><strong className="font-semibold text-slate-600">Education Path:</strong> {match.education}</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -417,7 +487,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                 </div>
             </div>
             
-            <div className="p-4 md:p-8 bg-slate-50 rounded-none print:p-6 print:shadow-none print:bg-white">
+            <div className="p-4 md:p-8 bg-slate-50 rounded-none print:p-6 print:shadow-none print:bg-white w-full">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                     <SectionCard icon={<LightbulbIcon className="h-8 w-8 text-yellow-500" />} title="Dominant Strengths">
                         <ul className="space-y-4">
@@ -463,44 +533,8 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                     <DetailedScores scores={scores} analysis={report.detailedAnalyses} />
                 </SectionCard>
             </div>
-            
-            {report.interviewPrep && (
-                <div className="p-4 md:p-8 bg-slate-50 rounded-none print:p-6 print:shadow-none print:bg-white">
-                    <SectionCard icon={<MicIcon className="h-8 w-8 text-teal-500" />} title="Interview Preparation Tips">
-                        <div className="space-y-6">
-                            <div>
-                                <h4 className="font-semibold text-md text-slate-700 mb-3">General Tips</h4>
-                                <ul className="list-disc list-inside space-y-2 text-sm text-slate-700">
-                                    {report.interviewPrep.generalTips.map((tip, index) => (
-                                        <li key={index}>{tip}</li>
-                                    ))}
-                                </ul>
-                            </div>
 
-                            {report.interviewPrep.careerSpecificTips.map((careerTips, index) => (
-                                <div key={index}>
-                                    <h4 className="font-semibold text-md text-slate-700 mb-3 pt-4 border-t border-slate-200">
-                                        For a <span className="text-indigo-600 font-bold">{careerTips.careerTitle}</span> Role
-                                    </h4>
-                                    <div className="space-y-4">
-                                        {careerTips.sampleQuestions.map((q, qIndex) => (
-                                            <div key={qIndex} className="bg-slate-100 p-4 rounded-lg border border-slate-200">
-                                                <p className="font-bold text-slate-800 text-sm flex items-start">
-                                                    <HelpCircleIcon className="h-5 w-5 mr-2 text-slate-500 flex-shrink-0 mt-0.5" />
-                                                    {q.question}
-                                                </p>
-                                                <p className="text-xs text-slate-600 mt-2 pl-7">{q.answerGuidance}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </SectionCard>
-                </div>
-            )}
-
-            <div className="p-4 md:p-8 bg-slate-50 rounded-none print:p-6 print:shadow-none print:bg-white">
+            <div className="p-4 md:p-8 bg-slate-50 rounded-none print:p-6 print:shadow-none print:bg-white w-full">
                 <SectionCard icon={<FlagIcon className="h-8 w-8 text-indigo-500" />} title="Your Journey Forward">
                     <p className="leading-relaxed text-lg">{report.concludingRemarks}</p>
                 </SectionCard>

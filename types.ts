@@ -1,4 +1,10 @@
-export type AppState = 'home' | 'pre-test' | 'test' | 'loading' | 'report';
+export type AppState = 'home' | 'pre-test' | 'test' | 'loading' | 'report' | 'chat-coach';
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
 
 export interface UserData {
   name: string;
@@ -93,6 +99,19 @@ export interface ReportData {
     trends: string;
     education: string;
     compatibility: number;
+    keyResponsibilities?: string;
+    requiredSkills?: string;
+    growthPath?: string;
+    salaryIndia?: {
+      entry: string;
+      mid: string;
+      senior: string;
+    };
+    salaryAbroad?: {
+      entry: string;
+      mid: string;
+      senior: string;
+    };
   }[];
   developmentPlan: {
     areasForImprovement: {

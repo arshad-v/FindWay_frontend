@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { type Answer, type UserData, type Question } from '../types';
-import { generateTestQuestions } from '../services/geminiService';
+import { generateTestQuestions } from '../services/aiAgents';
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, AlertTriangleIcon } from './icons';
 
 interface TestScreenProps {
