@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useUser } from '@clerk/clerk-react';
 import { type UserData } from '../types';
+import { DatabaseService } from '../services/databaseService';
 import { ArrowRightIcon, UserIcon, BriefcaseIcon, CalendarIcon, HeartIcon, StarIcon, BookOpenIcon, ArrowLeftIcon } from './icons';
 
 interface PreTestScreenProps {
@@ -8,25 +10,84 @@ interface PreTestScreenProps {
 }
 
 export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack }) => {
+  const { user } = useUser();
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
   const [education, setEducation] = useState('');
   const [degree, setDegree] = useState('');
   const [department, setDepartment] = useState('');
   const [skills, setSkills] = useState('');
   const [areaOfInterest, setAreaOfInterest] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !education) {
       setError('Please fill in all required fields: Name and Education Level.');
       return;
     }
+
+    if (!user) {
+      setError('Please sign in to continue.');
+      return;
+    }
+
+    setIsSubmitting(true);
     setError(null);
-    onComplete({ name, age, education, degree, department, skills, areaOfInterest });
+
+    try {
+      // First, ensure user exists in our database
+      await DatabaseService.upsertUser(
+        user.id,
+        user.primaryEmailAddress?.emailAddress || '',
+        user.fullName || name
+      );
+
+      // Prepare user data
+      const userData: UserData = { 
+        name, 
+        phone, 
+        age, 
+        gender, 
+        education, 
+        degree, 
+        department, 
+        skills, 
+        areaOfInterest 
+      };
+
+      // Save pretest data to database
+      const savedData = await DatabaseService.savePreTestData(user.id, userData);
+      
+      if (!savedData) {
+        console.error('Database save failed, but continuing with local flow');
+        // Don't block the user flow - continue even if database save fails
+        // setError('Failed to save your information. Please try again.');
+        // return;
+      }
+
+      // Log activity
+      await DatabaseService.logActivity(
+        user.id,
+        'pretest_completed',
+        { education, hasSkills: !!skills, hasInterests: !!areaOfInterest },
+        undefined,
+        navigator.userAgent
+      );
+
+      // Continue with the original flow
+      onComplete(userData);
+    } catch (error) {
+      console.error('Error submitting pretest data:', error);
+      setError('An error occurred while saving your information. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-  
+
   const showDetailedEducation = education === 'Undergraduate Student' || education === 'Graduate Student';
 
   return (
@@ -56,12 +117,44 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
                 className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" required />
             </div>
             <div>
-                <label htmlFor="age" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
-                    <CalendarIcon className="h-6 w-7 mr-2 text-gray-400" />
-                    Age
-                </label>
-                <input type="number" id="age" value={age} onChange={(e) => setAge(e.target.value)}
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
+                <svg className="h-6 w-7 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                Phone Number
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                  <span className="text-gray-300 font-medium">+91</span>
+                </div>
+                <input type="tel" id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="xxxxxxxxxx"
+                  className="w-full pl-16 pr-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+              </div>
+            </div>
+          </div>
+          <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <div>
+              <label htmlFor="age" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
+                <CalendarIcon className="h-6 w-7 mr-2 text-gray-400" />
+                Age
+              </label>
+              <input type="number" id="age" value={age} onChange={(e) => setAge(e.target.value)}
                 className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+            </div>
+            <div>
+              <label htmlFor="gender" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
+                <svg className="h-6 w-7 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Gender
+              </label>
+              <select id="gender" value={gender} onChange={(e) => setGender(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                <option value="" disabled>Select gender...</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Others">Others</option>
+              </select>
             </div>
           </div>
           <div>
@@ -124,11 +217,25 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
           <div className="text-center pt-4">
             <button
               type="submit"
-              className="bg-blue-600 text-white font-bold py-4 px-10 rounded-xl shadow-lg hover:bg-blue-500 transition-all duration-300 transform hover:scale-105 hover:shadow-blue-500/25 flex items-center justify-center w-full md:w-auto mx-auto group relative overflow-hidden"
+              disabled={isSubmitting}
+              className={`${
+                isSubmitting 
+                  ? 'bg-gray-600 cursor-not-allowed' 
+                  : 'bg-blue-600 hover:bg-blue-500 hover:scale-105 hover:shadow-blue-500/25'
+              } text-white font-bold py-4 px-10 rounded-xl shadow-lg transition-all duration-300 transform flex items-center justify-center w-full md:w-auto mx-auto group relative overflow-hidden`}
             >
               <div className="absolute inset-0 bg-white/10 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-              Continue to Assessment
-              <ArrowRightIcon className="ml-2 h-6 w-7 transition-transform duration-300 group-hover:translate-x-1" />
+              {isSubmitting ? (
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                <>
+                  Continue to Assessment
+                  <ArrowRightIcon className="ml-2 h-6 w-7 transition-transform duration-300 group-hover:translate-x-1" />
+                </>
+              )}
             </button>
           </div>
         </form>

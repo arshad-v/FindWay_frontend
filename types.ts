@@ -8,7 +8,9 @@ export interface ChatMessage {
 
 export interface UserData {
   name: string;
+  phone?: string;
   age: string;
+  gender?: string;
   education: string;
   degree?: string;
   department?: string;
