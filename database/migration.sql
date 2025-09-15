@@ -1,6 +1,15 @@
--- FindWay Database Schema
+-- Migration Script: Drop old tables and create new Clerk-Supabase integration schema
 -- Run this SQL in your Supabase SQL Editor
 
+-- Drop existing tables if they exist (in correct order due to foreign key constraints)
+DROP TABLE IF EXISTS public.user_activity_log CASCADE;
+DROP TABLE IF EXISTS public.user_pretest_data CASCADE;
+DROP TABLE IF EXISTS public.users CASCADE;
+
+-- Drop existing functions if they exist
+DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
+
+-- Now create the new schema
 -- Users table to store user profiles linked to Clerk authentication
 CREATE TABLE public.users (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -29,7 +38,6 @@ CREATE TABLE public.user_pretest_data (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-
 
 -- User activity log for analytics
 CREATE TABLE public.user_activity_log (

@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient';
+import { createClerkSupabaseClient } from './supabaseClient';
 import { UserData } from '../types';
 
 export interface DatabaseUser {
@@ -14,7 +14,7 @@ export interface DatabaseUser {
 
 export interface PreTestData {
   id: string;
-  user_id: string;
+  clerk_user_id: string;
   name: string;
   phone?: string;
   age?: number;
@@ -29,19 +29,26 @@ export interface PreTestData {
 }
 
 export class DatabaseService {
-  // Create or update user profile
-  static async upsertUser(clerkUserId: string, email: string, fullName?: string): Promise<DatabaseUser | null> {
+  // Create or update user profile using Clerk JWT authentication
+  static async upsertUser(session: any, email: string, fullName?: string): Promise<DatabaseUser | null> {
     try {
+      const client = createClerkSupabaseClient(session);
+      
+      // Debug: Log the token
+      const token = await session?.getToken();
+      console.log('Clerk token:', token ? 'Token exists' : 'No token');
+      
       // Check if user exists
-      const { data: existingUser } = await supabase
+      const { data: existingUser, error: selectError } = await client
         .from('users')
         .select('*')
-        .eq('clerk_user_id', clerkUserId)
-        .single();
+        .maybeSingle();
 
-      if (existingUser) {
+      console.log('Existing user check:', { existingUser, selectError });
+
+      if (existingUser && !selectError) {
         // Update existing user
-        const { data, error } = await supabase
+        const { data, error } = await client
           .from('users')
           .update({
             email: email,
@@ -49,7 +56,7 @@ export class DatabaseService {
             last_login: new Date().toISOString(),
             is_active: true
           })
-          .eq('clerk_user_id', clerkUserId)
+          .eq('clerk_user_id', existingUser.clerk_user_id)
           .select()
           .single();
 
@@ -59,11 +66,10 @@ export class DatabaseService {
         }
         return data;
       } else {
-        // Insert new user
-        const { data, error } = await supabase
+        // Insert new user (clerk_user_id will be auto-populated from JWT)
+        const { data, error } = await client
           .from('users')
           .insert({
-            clerk_user_id: clerkUserId,
             email: email,
             full_name: fullName,
             last_login: new Date().toISOString(),
@@ -71,6 +77,8 @@ export class DatabaseService {
           })
           .select()
           .single();
+
+        console.log('Insert user result:', { data, error });
 
         if (error) {
           console.error('Error inserting user:', error);
@@ -84,51 +92,26 @@ export class DatabaseService {
     }
   }
 
-  // Get user by Clerk ID
-  static async getUserByClerkId(clerkUserId: string): Promise<DatabaseUser | null> {
+  // Save pretest data using Clerk JWT authentication
+  static async savePreTestData(session: any, userData: UserData): Promise<PreTestData | null> {
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('clerk_user_id', clerkUserId)
-        .single();
-
-      if (error) {
-        console.error('Error getting user:', error);
-        return null;
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Error in getUserByClerkId:', error);
-      return null;
-    }
-  }
-
-  // Save pretest data
-  static async savePreTestData(clerkUserId: string, userData: UserData): Promise<PreTestData | null> {
-    try {
-      // First, get the user's database ID
-      const user = await this.getUserByClerkId(clerkUserId);
-      if (!user) {
-        console.error('User not found in database');
-        return null;
-      }
-
+      const client = createClerkSupabaseClient(session);
+      
       // Convert age string to number if provided
       const ageNumber = userData.age ? parseInt(userData.age, 10) : null;
 
-      // Check if pretest data already exists
-      const { data: existingData } = await supabase
+      // Check if pretest data already exists for this user
+      const { data: existingData, error: existingError } = await client
         .from('user_pretest_data')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
+        .select('id, clerk_user_id')
+        .maybeSingle();
+
+      console.log('Existing pretest data check:', { existingData, existingError });
 
       let result;
-      if (existingData) {
+      if (existingData && !existingError) {
         // Update existing record
-        result = await supabase
+        result = await client
           .from('user_pretest_data')
           .update({
             name: userData.name,
@@ -142,15 +125,18 @@ export class DatabaseService {
             area_of_interest: userData.areaOfInterest || null,
             updated_at: new Date().toISOString()
           })
-          .eq('user_id', user.id)
-          .select()
-          .single();
+          .eq('clerk_user_id', existingData.clerk_user_id)
+          .select();
+          
+        // Handle array result from update
+        if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+          result.data = result.data[0];
+        }
       } else {
-        // Insert new record
-        result = await supabase
+        // Insert new record (clerk_user_id will be auto-populated from JWT)
+        result = await client
           .from('user_pretest_data')
           .insert({
-            user_id: user.id,
             name: userData.name,
             phone: userData.phone || null,
             age: ageNumber,
@@ -161,8 +147,12 @@ export class DatabaseService {
             skills: userData.skills || null,
             area_of_interest: userData.areaOfInterest || null
           })
-          .select()
-          .single();
+          .select();
+          
+        // Handle array result from insert
+        if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+          result.data = result.data[0];
+        }
       }
 
       if (result.error) {
@@ -170,6 +160,12 @@ export class DatabaseService {
         return null;
       }
 
+      if (!result.data) {
+        console.error('No data returned from pretest save operation');
+        return null;
+      }
+
+      console.log('Pretest data saved successfully:', result.data);
       return result.data;
     } catch (error) {
       console.error('Error in savePreTestData:', error);
@@ -177,18 +173,14 @@ export class DatabaseService {
     }
   }
 
-  // Get pretest data for a user
-  static async getPreTestData(clerkUserId: string): Promise<PreTestData | null> {
+  // Get pretest data for authenticated user
+  static async getPreTestData(session: any): Promise<PreTestData | null> {
     try {
-      const user = await this.getUserByClerkId(clerkUserId);
-      if (!user) {
-        return null;
-      }
-
-      const { data, error } = await supabase
+      const client = createClerkSupabaseClient(session);
+      
+      const { data, error } = await client
         .from('user_pretest_data')
         .select('*')
-        .eq('user_id', user.id)
         .single();
 
       if (error) {
@@ -203,24 +195,20 @@ export class DatabaseService {
     }
   }
 
-  // Log user activity
+  // Log user activity using Clerk JWT authentication
   static async logActivity(
-    clerkUserId: string, 
+    session: any,
     activityType: string, 
     activityData?: any,
     ipAddress?: string,
     userAgent?: string
   ): Promise<boolean> {
     try {
-      const user = await this.getUserByClerkId(clerkUserId);
-      if (!user) {
-        return false;
-      }
-
-      const { error } = await supabase
+      const client = createClerkSupabaseClient(session);
+      
+      const { error } = await client
         .from('user_activity_log')
         .insert({
-          user_id: user.id,
           activity_type: activityType,
           activity_data: activityData || null,
           ip_address: ipAddress || null,

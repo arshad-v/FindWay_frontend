@@ -7,8 +7,8 @@ export const Footer: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-12">
           <div className="md:col-span-2">
-            <div className="flex items-center mb-6">
-              <div className="flex items-center gap-3">
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-2">
                 <img 
                   src="https://iili.io/KIrXCNI.th.png" 
                   alt="CareerRoute.ai Logo" 
@@ -19,6 +19,15 @@ export const Footer: React.FC = () => {
                   <span style={{color: '#3388FF'}}>.ai</span>
                 </div>
               </div>
+              <p className="text-gray-500 text-sm ml-15">
+                Powered by <a href="https://nizzcorp.com" target="_blank" rel="noopener noreferrer" className="text-white font-bold hover:text-gray-300 transition-colors inline-flex items-center gap-1">
+                  NizzCorp
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.25 5.5a.75.75 0 00-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4a.75.75 0 011.5 0v4A2.25 2.25 0 0112.75 17h-8.5A2.25 2.25 0 012 14.75v-8.5A2.25 2.25 0 014.25 4h5a.75.75 0 010 1.5h-5z" clipRule="evenodd" />
+                    <path fillRule="evenodd" d="M6.194 12.753a.75.75 0 001.06.053L16.5 4.44v2.81a.75.75 0 001.5 0v-4.5a.75.75 0 00-.75-.75h-4.5a.75.75 0 000 1.5h2.553l-9.056 8.194a.75.75 0 00-.053 1.06z" clipRule="evenodd" />
+                  </svg>
+                </a>
+              </p>
             </div>
             <p className="text-gray-400 mb-6 leading-relaxed max-w-md">
               Empowering students and professionals to discover their ideal career paths through advanced AI-driven assessments and personalized guidance.

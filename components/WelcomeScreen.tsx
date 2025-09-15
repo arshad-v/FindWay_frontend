@@ -131,7 +131,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
         <section id="features" className="py-12 sm:py-20 md:py-32 relative">
             <div className="container mx-auto px-4 sm:px-6 text-center">
                 <div>
-                    <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6">Why Choose FindWay.ai?</h2>
+                    <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6">Why Choose CareerRoute.ai?</h2>
                     <p className="text-base sm:text-xl text-gray-400 max-w-3xl mx-auto mb-8 sm:mb-16 leading-relaxed px-2">We go beyond simple quizzes to provide a holistic view of your potential with cutting-edge AI technology.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8 text-left">
