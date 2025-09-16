@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { type ReportData, type RawScores, type UserData, Question, QuestionType } from '../types';
+import { type ReportData, type RawScores, type UserData, Question, QuestionType, type PathwayPlan, type PathwayStep } from '../types';
 
 // ===== AI AGENT ARCHITECTURE =====
 // This file implements a specialized AI agent system with three distinct agents:
@@ -632,4 +632,111 @@ export const generateTestQuestions = async (userData: UserData): Promise<Questio
 
 export const generateCareerReport = async (scores: RawScores, userData: UserData): Promise<ReportData> => {
     return generateCareerReportWithAgents(scores, userData);
+};
+
+// ===== AGENT 5: PATHWAY GENERATOR =====
+// Creates personalized career pathway plans based on user profile and target career
+
+const pathwayPlanSchema = {
+    type: Type.OBJECT,
+    properties: {
+        careerTitle: {
+            type: Type.STRING,
+            description: "The target career title"
+        },
+        steps: {
+            type: Type.ARRAY,
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    type: {
+                        type: Type.STRING,
+                        enum: ['Education', 'Skill Development', 'Practical Experience', 'Certification', 'Networking']
+                    },
+                    title: { type: Type.STRING },
+                    duration: { type: Type.STRING },
+                    description: { type: Type.STRING }
+                },
+                required: ["type", "title", "duration", "description"]
+            }
+        }
+    },
+    required: ["careerTitle", "steps"]
+};
+
+export const pathwayGeneratorAgent = async (
+    userData: UserData,
+    careerTitle: string
+): Promise<PathwayPlan> => {
+    const apiKey = import.meta.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+        throw new Error('Gemini API key not found. Please check your environment variables.');
+    }
+    const ai = new GoogleGenAI({ apiKey });
+
+    try {
+        const prompt = `
+            You are an expert career and academic advisor. Your role is to create a personalized, step-by-step pathway plan that shows how the user can transition from their current position to their target career.
+
+            --- User's Current Profile ---
+            - Name: ${userData.name}
+            - Age: ${userData.age}
+            - Current Education: ${userData.education}
+            - Degree/Program: ${userData.degree || 'Not specified'}
+            - Department/Major: ${userData.department || 'Not specified'}
+            - Current Skills: ${userData.skills || 'Not specified'}
+            - Areas of Interest: ${userData.areaOfInterest || 'Not specified'}
+
+            --- Target Career ---
+            ${careerTitle}
+
+            --- Instructions ---
+            Create a logical, chronological sequence of 4-7 steps that will help the user transition from their current position to becoming a ${careerTitle}. Each step should be:
+
+            1. **Realistic**: Based on their current education level and background
+            2. **Specific**: Include concrete actions and timeframes
+            3. **Progressive**: Each step builds upon the previous ones
+            4. **Actionable**: Clear what they need to do
+
+            **Step Types to Use:**
+            - **Education**: Formal degrees, courses, certifications from institutions
+            - **Skill Development**: Technical skills, software, programming languages, tools
+            - **Practical Experience**: Internships, projects, freelancing, part-time work
+            - **Certification**: Industry certifications, professional licenses
+            - **Networking**: Professional connections, mentorship, industry events
+
+            **Duration Guidelines:**
+            - Education: 6 months - 4 years depending on program
+            - Skill Development: 2-8 months for specific skills
+            - Practical Experience: 3-12 months for meaningful experience
+            - Certification: 1-6 months preparation and completion
+            - Networking: Ongoing, 3-6 months to establish connections
+
+            **Description Requirements:**
+            - 2-3 sentences explaining what this step involves
+            - Why this step is important for the career transition
+            - Specific examples of what they should focus on
+
+            Analyze the gap between their current state and target career, then create a pathway that bridges this gap effectively.
+        `;
+
+        const response = await ai.models.generateContent({
+            model: "gemini-1.5-flash",
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: pathwayPlanSchema,
+            },
+        });
+
+        const jsonText = response.text.trim();
+        const pathwayPlan: PathwayPlan = JSON.parse(jsonText);
+        return pathwayPlan;
+    } catch (error) {
+        console.error('Error generating pathway:', error);
+        if (error instanceof Error) {
+            throw new Error(`Failed to generate pathway: ${error.message}`);
+        }
+        throw new Error('Failed to generate pathway plan');
+    }
 };

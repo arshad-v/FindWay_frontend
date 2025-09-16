@@ -1,10 +1,11 @@
 import React, { useRef, useState } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { type ReportData, type RawScores, type UserData } from '../types';
+import { type ReportData, type RawScores, type UserData, type PathwayPlan } from '../types';
 import { getNormalizedScoresForChart } from '../utils/scoreCalculator';
 import { ScoreChart } from './ScoreChart';
-import { LightbulbIcon, BriefcaseIcon, GrowthIcon, DownloadIcon, RefreshCwIcon, StarIcon, TargetIcon, BookOpenIcon, ZapIcon, CodeIcon, DollarSignIcon, PaletteIcon, StethoscopeIcon, UsersIcon, UserIcon, CompassIcon, FlagIcon, MessageCircleIcon } from './icons';
+import { PathwayPlannerModal } from './PathwayPlannerModal';
+import { LightbulbIcon, BriefcaseIcon, GrowthIcon, DownloadIcon, RefreshCwIcon, StarIcon, TargetIcon, BookOpenIcon, ZapIcon, CodeIcon, DollarSignIcon, PaletteIcon, StethoscopeIcon, UsersIcon, UserIcon, CompassIcon, FlagIcon, MessageCircleIcon, MapIcon } from './icons';
 
 interface ReportScreenProps {
   report: ReportData;
@@ -105,204 +106,22 @@ const DetailedScores: React.FC<{scores: RawScores, analysis: ReportData['detaile
 export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, userData, onRetake, onChatWithCoach }) => {
   const reportContentRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [pathwayCareer, setPathwayCareer] = useState<string | null>(null);
+  const [pathwayCache, setPathwayCache] = useState<{ [key: string]: PathwayPlan }>({});
   const normalizedScores = getNormalizedScoresForChart(scores);
 
+  const handleGeneratePathway = (careerTitle: string) => {
+    setPathwayCareer(careerTitle);
+  };
+
+  const handleClosePathway = () => {
+    setPathwayCareer(null);
+  };
+
   const downloadPdf = async () => {
-    const contentToCapture = reportContentRef.current;
-    if (!contentToCapture) {
-      console.error("Report content element not found.");
-      alert("Unable to generate PDF. Please refresh the page and try again.");
-      return;
-    }
-  
-    setIsDownloading(true);
-    const elementsToHide = document.querySelectorAll<HTMLElement>('.pdf-hide');
-    elementsToHide.forEach(el => { el.style.display = 'none'; });
-  
-    try {
-      // Add a small delay to ensure DOM is ready
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const canvas = await html2canvas(contentToCapture, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        height: contentToCapture.scrollHeight,
-        width: contentToCapture.scrollWidth,
-      });
-  
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-  
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-  
-      // margins + header/footer
-      const margin = 10;
-      const headerHeight = 20;
-      const footerHeight = 10;
-      const contentWidth = pdfWidth; // Full width for content pages
-      const contentHeight = pdfHeight - headerHeight - footerHeight - margin;
-  
-      const imgProps = pdf.getImageProperties(imgData);
-      const imgWidth = contentWidth;
-      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-  
-      let yPosition = 0;
-      let pageNumber = 1;
-      const totalPages = Math.ceil(imgHeight / contentHeight) + 1; // +1 cover
-  
-      const currentDate = new Date().toLocaleDateString('en-US', {
-        year: 'numeric', month: 'long', day: 'numeric'
-      });
-  
-      // --- Modern Cover Page ---
-      pdf.setFillColor('#ffffff');
-      pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
-  
-      // 🔹 Border with rounded corners
-      pdf.setDrawColor('#d1d5db'); // light gray
-      pdf.setLineWidth(0.8);
-      pdf.roundedRect(12, 12, pdfWidth - 24, pdfHeight - 24, 8, 8);
-  
-      // 🔹 Text Logo - CareerRoute.ai
-      const logoY = 50;
-      pdf.setFontSize(32);
-      pdf.setFont('helvetica', 'bold');
-      
-      // Calculate text width for centering
-      const careerRouteText = 'CareerRoute';
-      const aiText = '.ai';
-      const careerRouteWidth = pdf.getTextWidth(careerRouteText);
-      const aiWidth = pdf.getTextWidth(aiText);
-      const totalWidth = careerRouteWidth + aiWidth;
-      const logoX = (pdfWidth - totalWidth) / 2;
-      
-      // Draw "CareerRoute" in black
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(careerRouteText, logoX, logoY);
-      
-      // Draw ".ai" in blue
-      pdf.setTextColor(59, 130, 246); // Blue color
-      pdf.text(aiText, logoX + careerRouteWidth, logoY);
-  
-      // Title
-      pdf.setFontSize(26).setTextColor('#1e293b').setFont('helvetica', 'bold');
-      pdf.text('Career Assessment Report', pdfWidth / 2, 115, { align: 'center' });
-  
-      // Accent underline
-      pdf.setDrawColor('#3b82f6');
-      pdf.setLineWidth(1.2);
-      pdf.line(pdfWidth / 2 - 40, 120, pdfWidth / 2 + 40, 120);
-  
-      // Branding
-      pdf.setFontSize(16).setTextColor('#3b82f6').setFont('helvetica', 'bold');
-      pdf.text('CareerRoute.ai', pdfWidth / 2, 140, { align: 'center' });
-  
-      // User Info
-      pdf.setFontSize(13).setTextColor('#374151').setFont('helvetica', 'normal');
-      pdf.text(`Prepared for: ${userData.name}`, pdfWidth / 2, 165, { align: 'center' });
-  
-      pdf.setFontSize(11).setTextColor('#6b7280');
-      pdf.text(`Generated on ${currentDate}`, pdfWidth / 2, 180, { align: 'center' });
-  
-      // Footer
-      pdf.setFontSize(10).setTextColor('#9ca3af');
-      pdf.text('Confidential Career Assessment Report', pdfWidth / 2, pdfHeight - 30, { align: 'center' });
-      pdf.text('www.careerroute.ai', pdfWidth / 2, pdfHeight - 20, { align: 'center' });
-  
-      pdf.addPage();
-      pageNumber++;
-  
-      // --- Header/Footer helper ---
-      const addPageTemplate = (pageNum: number, totalPages: number) => {
-        // header
-        pdf.setFontSize(13).setTextColor('#1e293b').setFont('helvetica', 'bold');
-        pdf.text(`Career Assessment Report`, margin, 18);
-  
-        pdf.setFontSize(14).setTextColor('#3b82f6').setFont('helvetica', 'bold');
-        const careerRouteText = 'CareerRoute.ai';
-        pdf.text(careerRouteText, pdfWidth - margin - pdf.getTextWidth(careerRouteText), 18);
-  
-        pdf.setFontSize(10).setTextColor('#64748b').setFont('helvetica', 'normal');
-        pdf.text(`For: ${userData.name}`, margin, 27);
-        const dateStr = `Generated: ${currentDate}`;
-        pdf.text(dateStr, pdfWidth - margin - pdf.getTextWidth(dateStr), 27);
-  
-        // footer
-        pdf.setFontSize(9).setTextColor('#94a3b8');
-        pdf.text('Confidential Career Assessment Report', margin, pdfHeight - 8);
-  
-        const pageText = `Page ${pageNum} of ${totalPages}`;
-        pdf.text(pageText, pdfWidth - margin - pdf.getTextWidth(pageText), pdfHeight - 8);
-  
-        const websiteText = 'www.careerroute.ai';
-        pdf.text(websiteText, (pdfWidth - pdf.getTextWidth(websiteText)) / 2, pdfHeight - 8);
-      };
-  
-      // --- Slice content into pages ---
-      while (yPosition < imgHeight) {
-        const canvasPage = document.createElement('canvas');
-        const ctx = canvasPage.getContext('2d')!;
-        const sliceHeight = Math.min(contentHeight, imgHeight - yPosition);
-  
-        canvasPage.width = imgProps.width;
-        canvasPage.height = (sliceHeight * imgProps.width) / contentWidth;
-  
-        ctx.drawImage(
-          canvas,
-          0, (yPosition * imgProps.width) / contentWidth, imgProps.width, (sliceHeight * imgProps.width) / contentWidth,
-          0, 0, canvasPage.width, canvasPage.height
-        );
-  
-        const pageImgData = canvasPage.toDataURL('image/png');
-  
-        if (pageNumber > 2) pdf.addPage();
-        addPageTemplate(pageNumber - 1, totalPages);
-  
-        const topOffset = headerHeight + 8;
-        const usableHeight = pdfHeight - topOffset - footerHeight - 5;
-        pdf.addImage(pageImgData, 'PNG', 0, topOffset, imgWidth, usableHeight);
-  
-        yPosition += contentHeight;
-        pageNumber++;
-      }
-  
-      // Generate safe filename
-      const safeUserName = userData.name.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
-      const filename = `CareerRoute_Career_Report_${safeUserName}_${new Date().toISOString().split('T')[0]}.pdf`;
-      
-      pdf.save(filename);
-      
-      // Success notification
-      console.log('PDF generated successfully:', filename);
-      
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      
-      // More specific error handling
-      let errorMessage = "Sorry, there was an error generating the PDF. Please try again.";
-      
-      if (error instanceof Error) {
-        if (error.message.includes('canvas')) {
-          errorMessage = "Unable to capture report content. Please scroll to the top and try again.";
-        } else if (error.message.includes('network') || error.message.includes('CORS')) {
-          errorMessage = "Network error while generating PDF. Please check your connection and try again.";
-        }
-      }
-      
-      alert(errorMessage);
-    } finally {
-      // Restore hidden elements
-      elementsToHide.forEach(el => { 
-        if (el.style.display === 'none') {
-          el.style.display = ''; 
-        }
-      });
-      setIsDownloading(false);
-    }
+    // Disabled until payment integration is ready
+    // Show Pro upgrade message instead
+    alert('🚀 Upgrade to Pro to download your personalized career report as PDF!');
   };  
 
 
@@ -319,20 +138,15 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                         <button onClick={onRetake} className="flex items-center justify-center px-4 py-2.5 bg-white text-slate-700 rounded-lg border border-slate-300 hover:bg-slate-100 transition-colors font-semibold text-sm shadow-sm">
                             <RefreshCwIcon className="h-6 w-6 mr-2" /> Retake Test
                         </button>
-                        <button onClick={downloadPdf} disabled={isDownloading} className="flex items-center justify-center px-4 py-2.5 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-400 disabled:cursor-wait text-sm">
-                            {isDownloading ? (
-                                <>
-                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Generating...
-                                </>
-                            ) : (
-                                <>
-                                    <DownloadIcon className="h-6 w-6 mr-2" /> Download PDF
-                                </>
-                            )}
+                        <button onClick={downloadPdf} className="relative flex items-center justify-center px-4 py-2.5 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm text-sm overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 animate-pulse opacity-20"></div>
+                            <div className="relative flex items-center">
+                                <DownloadIcon className="h-6 w-6 mr-2" /> 
+                                <span>Download PDF</span>
+                                <div className="ml-2 bg-yellow-400 text-black text-xs px-2 py-1 rounded-full font-bold animate-bounce">
+                                    PRO
+                                </div>
+                            </div>
                         </button>
                         {onChatWithCoach && (
                             <button 
@@ -370,22 +184,16 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                         <span className="hidden sm:inline">Retake Test</span>
                         <span className="sm:hidden">Retake</span>
                     </button>
-                    <button onClick={downloadPdf} disabled={isDownloading} className="flex items-center justify-center px-3 sm:px-5 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-400 disabled:cursor-wait text-sm sm:text-base">
-                        {isDownloading ? (
-                            <>
-                                <svg className="animate-spin -ml-1 mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Generating...
-                            </>
-                        ) : (
-                            <>
-                                <DownloadIcon className="h-4 w-4 sm:h-6 sm:w-7 mr-1 sm:mr-2" /> 
-                                <span className="hidden sm:inline">Download PDF</span>
-                                <span className="sm:hidden">PDF</span>
-                            </>
-                        )}
+                    <button onClick={downloadPdf} className="relative flex items-center justify-center px-3 sm:px-5 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm text-sm sm:text-base overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 animate-pulse opacity-20"></div>
+                        <div className="relative flex items-center">
+                            <DownloadIcon className="h-4 w-4 sm:h-6 sm:w-7 mr-1 sm:mr-2" /> 
+                            <span className="hidden sm:inline">Download PDF</span>
+                            <span className="sm:hidden">PDF</span>
+                            <div className="ml-1 sm:ml-2 bg-yellow-400 text-black text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-bold animate-bounce">
+                                PRO
+                            </div>
+                        </div>
                     </button>
                     {onChatWithCoach && (
                         <button 
@@ -437,10 +245,10 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                                                 {/* Job Scope & Features */}
                                                 <div className="bg-white/90 p-4 rounded-lg border border-slate-200">
                                                     <h5 className="font-semibold text-slate-700 mb-3 flex items-center">
-                                                        <TargetIcon className="h-4 w-4 mr-2 text-blue-500" />
+                                                        <TargetIcon className="h-6 w-6 mr-2 text-blue-500" />
                                                         Job Scope & Features
                                                     </h5>
-                                                    <div className="space-y-2 text-xs">
+                                                    <div className="space-y-2 text-sm leading-6">
                                                         <p><strong>Key Responsibilities:</strong> {match.keyResponsibilities || 'Strategic planning, team leadership, project management, stakeholder communication, performance optimization'}</p>
                                                         <p><strong>Required Skills:</strong> {match.requiredSkills || 'Technical expertise, analytical thinking, communication, problem-solving, leadership'}</p>
                                                         <p><strong>Growth Path:</strong> {match.growthPath || 'Junior → Senior → Lead → Manager → Director → VP'}</p>
@@ -450,10 +258,10 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                                                 {/* Salary Information */}
                                                 <div className="bg-white/90 p-4 rounded-lg border border-slate-200">
                                                     <h5 className="font-semibold text-slate-700 mb-3 flex items-center">
-                                                        <DollarSignIcon className="h-4 w-4 mr-2 text-green-500" />
+                                                        <DollarSignIcon className="h-6 w-6 mr-2 text-green-500" />
                                                         Salary Ranges
                                                     </h5>
-                                                    <div className="space-y-3 text-xs">
+                                                    <div className="space-y-3 text-sm leading-6">
                                                         <div className="bg-green-50 p-3 rounded border-l-4 border-green-400">
                                                             <p className="font-semibold text-green-800">🇮🇳 India</p>
                                                             <p><strong>Entry Level:</strong> {match.salaryIndia?.entry || '₹3-8 LPA'}</p>
@@ -470,12 +278,80 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                                                 </div>
                                             </div>
 
-                                            <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                                <div className="text-xs bg-white/80 p-3 rounded-lg border border-slate-200/80">
+                                            {/* Market Trends */}
+                                            <div className="mt-4">
+                                                <div className="text-sm leading-6 bg-white/80 p-3 rounded-lg border border-slate-200/80">
                                                     <p><strong className="font-semibold text-slate-600">Market Trends:</strong> {match.trends}</p>
                                                 </div>
-                                                <div className="text-xs bg-white/80 p-3 rounded-lg border border-slate-200/80">
-                                                    <p><strong className="font-semibold text-slate-600">Education Path:</strong> {match.education}</p>
+                                            </div>
+
+                                            {/* Ready to Start - Responsive Design */}
+                                            <div className="mt-6">
+                                                {/* Mobile Simple Version */}
+                                                <div className="block lg:hidden">
+                                                    <div className="bg-indigo-600 rounded-lg p-4 text-center">
+                                                        <h3 className="text-lg font-bold text-white mb-2">Ready to Start?</h3>
+                                                        <p className="text-white/90 text-sm mb-4">Get your personalized roadmap</p>
+                                                        <button
+                                                            onClick={() => handleGeneratePathway(match.title)}
+                                                            className="bg-white text-indigo-600 hover:bg-gray-50 px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 w-full"
+                                                        >
+                                                            <MapIcon className="h-6 w-7" />
+                                                            <span>Generate My Pathway</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                {/* Desktop Full Version */}
+                                                <div className="hidden lg:block">
+                                                    <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700 rounded-2xl p-6 shadow-xl border border-white/20">
+                                                        {/* Background Pattern */}
+                                                        <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent"></div>
+                                                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+                                                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+                                                        
+                                                        <div className="relative z-10 flex flex-row items-center justify-between gap-6">
+                                                            <div className="flex-1 text-left">
+                                                                <div className="flex items-center justify-start mb-3">
+                                                                    <div className="bg-white/20 backdrop-blur-sm rounded-full p-3 mr-4">
+                                                                        <MapIcon className="h-6 w-6 text-white" />
+                                                                    </div>
+                                                                    <h3 className="text-2xl font-bold text-white">Ready to Start Your Journey?</h3>
+                                                                </div>
+                                                                <p className="text-white/90 text-base leading-relaxed mb-4">
+                                                                    Get your personalized step-by-step roadmap tailored to your background and goals. 
+                                                                    Transform your career aspirations into actionable milestones.
+                                                                </p>
+                                                                <div className="flex items-center justify-start space-x-4 text-sm text-white/80">
+                                                                    <div className="flex items-center">
+                                                                        <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                                                                        <span>AI-Powered</span>
+                                                                    </div>
+                                                                    <div className="flex items-center">
+                                                                        <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                                                                        <span>Personalized</span>
+                                                                    </div>
+                                                                    <div className="flex items-center">
+                                                                        <div className="w-2 h-2 bg-purple-400 rounded-full mr-2"></div>
+                                                                        <span>Actionable</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div className="flex-shrink-0">
+                                                                <button
+                                                                    onClick={() => handleGeneratePathway(match.title)}
+                                                                    className="group relative bg-white text-indigo-600 hover:text-indigo-700 px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 hover:-translate-y-1 min-w-[200px]"
+                                                                >
+                                                                    <div className="flex items-center justify-center space-x-3">
+                                                                        <MapIcon className="h-6 w-7 group-hover:rotate-12 transition-transform duration-300" />
+                                                                        <span>Generate My Pathway</span>
+                                                                    </div>
+                                                                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -542,6 +418,16 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
             </div>
         </div>
       </div>
+
+      {/* Pathway Planner Modal */}
+      {pathwayCareer && (
+        <PathwayPlannerModal
+          isOpen={!!pathwayCareer}
+          onClose={handleClosePathway}
+          careerTitle={pathwayCareer}
+          userData={userData}
+        />
+      )}
     </div>
   );
 };

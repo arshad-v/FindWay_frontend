@@ -144,3 +144,25 @@ export interface ReportData {
   };
   concludingRemarks: string;
 }
+
+export interface CareerMatch {
+  title: string;
+  match: number;
+  description: string;
+  requiredEducation: string;
+  averageSalary: string;
+  jobOutlook: string;
+  keySkills: string[];
+}
+
+export interface PathwayStep {
+  type: 'Education' | 'Skill Development' | 'Practical Experience' | 'Certification' | 'Networking';
+  title: string;
+  duration: string;
+  description: string;
+}
+
+export interface PathwayPlan {
+  careerTitle: string;
+  steps: PathwayStep[];
+}

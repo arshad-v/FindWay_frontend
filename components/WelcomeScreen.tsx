@@ -134,7 +134,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                     <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6">Why Choose CareerRoute.ai?</h2>
                     <p className="text-base sm:text-xl text-gray-400 max-w-3xl mx-auto mb-8 sm:mb-16 leading-relaxed px-2">We go beyond simple quizzes to provide a holistic view of your potential with cutting-edge AI technology.</p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8 text-left">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 text-left">
                     <FeatureCard icon={<LightbulbIcon className="h-8 w-8 text-blue-400" />} title="AI-Powered Insights" delay="0.1s">
                         Leverage the power of generative AI to analyze your unique traits and receive nuanced feedback you won't find anywhere else.
                     </FeatureCard>
@@ -143,6 +143,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                     </FeatureCard>
                      <FeatureCard icon={<GrowthIcon className="h-8 w-8 text-blue-400" />} title="Actionable Development Plan" delay="0.3s">
                         Receive a custom roadmap for growth, including recommended resources, habits, and exercises to help you succeed.
+                    </FeatureCard>
+                    <FeatureCard icon={<svg className="h-8 w-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>} title="AI Career Coach" delay="0.4s">
+                        Get personalized guidance from our intelligent career coach that understands your goals and provides tailored advice 24/7.
+                    </FeatureCard>
+                    <FeatureCard icon={<svg className="h-8 w-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>} title="Career Pathway Generator" delay="0.5s">
+                        Transform your career aspirations into actionable step-by-step roadmaps with personalized timelines and milestones.
                     </FeatureCard>
                 </div>
             </div>
@@ -275,34 +281,76 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
             </div>
         </section>
 
-        {/* How It Works Section */}
-        <section id="how-it-works" className="py-20 md:py-32 bg-black">
-             <div className="container mx-auto px-6">
-                <div className="text-center">
-                     <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Your Journey in 3 Simple Steps</h2>
-                    <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-16 leading-relaxed">Quick, easy, and insightful. Get your personalized report in minutes.</p>
+        {/* Career Pathway Generator Section */}
+        <section id="career-pathway" className="py-20 md:py-32 bg-black">
+            <div className="container mx-auto px-4 sm:px-6">
+                <div className="text-center mb-12 sm:mb-16">
+                    <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6">AI-Powered Career Pathway Generator</h2>
+                    <p className="text-base sm:text-xl text-gray-400 max-w-4xl mx-auto leading-relaxed px-2">
+                        Transform your career aspirations into actionable roadmaps with our intelligent pathway generator that creates personalized step-by-step plans.
+                    </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                    <div className="text-center p-8">
-                        <div className="relative mb-8">
-                            <div className="bg-blue-500 text-white font-bold rounded-2xl h-16 w-16 flex items-center justify-center mx-auto text-2xl shadow-lg">1</div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 mb-12 sm:mb-16">
+                    <div className="bg-gray-800/50 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-gray-700/50">
+                        <div className="flex items-center mb-6">
+                            <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mr-4">
+                                <svg className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                                </svg>
+                            </div>
+                            <h3 className="text-xl sm:text-2xl font-bold text-white">Smart Roadmap Creation</h3>
                         </div>
-                        <h3 className="text-2xl font-bold mb-4 text-white">Take the Assessment</h3>
-                        <p className="text-gray-400 leading-relaxed">Answer a series of dynamic, AI-generated questions designed to understand you better.</p>
+                        <p className="text-gray-400 leading-relaxed mb-4">
+                            Generate personalized career pathways based on your current background, skills, and target career goals with AI-driven insights and industry expertise.
+                        </p>
+                        <ul className="text-sm text-gray-300 space-y-2">
+                            <li className="flex items-center"><span className="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>Skill Development Timeline</li>
+                            <li className="flex items-center"><span className="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>Education & Certification Path</li>
+                            <li className="flex items-center"><span className="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>Experience Building Strategy</li>
+                        </ul>
                     </div>
-                     <div className="text-center p-8">
-                        <div className="relative mb-8">
-                            <div className="bg-blue-500 text-white font-bold rounded-2xl h-16 w-16 flex items-center justify-center mx-auto text-2xl shadow-lg">2</div>
+
+                    <div className="bg-gray-800/50 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-gray-700/50">
+                        <div className="flex items-center mb-6">
+                            <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-2xl bg-purple-500/10 flex items-center justify-center mr-4">
+                                <svg className="h-6 w-6 sm:h-8 sm:w-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                </svg>
+                            </div>
+                            <h3 className="text-xl sm:text-2xl font-bold text-white">Milestone Tracking</h3>
                         </div>
-                        <h3 className="text-2xl font-bold mb-4 text-white">AI Analysis</h3>
-                        <p className="text-gray-400 leading-relaxed">Our advanced model processes your responses to build a comprehensive personal and professional profile.</p>
+                        <p className="text-gray-400 leading-relaxed mb-4">
+                            Break down your career transition into manageable milestones with realistic timelines and measurable outcomes for steady progress.
+                        </p>
+                        <ul className="text-sm text-gray-300 space-y-2">
+                            <li className="flex items-center"><span className="w-2 h-2 bg-purple-400 rounded-full mr-3"></span>Progress Checkpoints</li>
+                            <li className="flex items-center"><span className="w-2 h-2 bg-purple-400 rounded-full mr-3"></span>Achievement Metrics</li>
+                            <li className="flex items-center"><span className="w-2 h-2 bg-purple-400 rounded-full mr-3"></span>Timeline Optimization</li>
+                        </ul>
                     </div>
-                     <div className="text-center p-8">
-                        <div className="relative mb-8">
-                            <div className="bg-blue-500 text-white font-bold rounded-2xl h-16 w-16 flex items-center justify-center mx-auto text-2xl shadow-lg">3</div>
+                </div>
+
+                <div className="text-center">
+                    <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-2xl p-8 max-w-4xl mx-auto">
+                        <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">Ready to Map Your Future?</h3>
+                        <p className="text-gray-300 text-lg mb-6">
+                            Take our comprehensive assessment and unlock your personalized career pathway with actionable steps to achieve your professional goals.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <div className="flex items-center text-sm text-gray-400">
+                                <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                                AI-Generated Pathways
+                            </div>
+                            <div className="flex items-center text-sm text-gray-400">
+                                <span className="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
+                                Industry-Specific Guidance
+                            </div>
+                            <div className="flex items-center text-sm text-gray-400">
+                                <span className="w-2 h-2 bg-purple-400 rounded-full mr-2"></span>
+                                Personalized Timelines
+                            </div>
                         </div>
-                        <h3 className="text-2xl font-bold mb-4 text-white">Receive Your Report</h3>
-                        <p className="text-gray-400 leading-relaxed">Unlock a detailed report with career matches, strengths, and a personalized development plan.</p>
                     </div>
                 </div>
             </div>
