@@ -21,7 +21,7 @@ const QuestionLoader: React.FC = () => (
             </div>
         </div>
         <p className="mt-6 text-gray-300 text-xl">Generating your personalized assessment...</p>
-        <p className="text-gray-400 mt-2">This may take a moment.</p>
+        <p className="text-gray-400 mt-2">If you selected Malayalam, then this may take a moment.</p>
     </div>
 );
 

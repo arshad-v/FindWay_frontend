@@ -16,6 +16,7 @@ export interface UserData {
   department?: string;
   skills: string;
   areaOfInterest: string;
+  assessmentLanguage?: 'English' | 'Malayalam';
 }
 
 export enum QuestionType {

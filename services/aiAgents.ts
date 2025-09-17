@@ -40,8 +40,25 @@ export const questionGeneratorAgent = async (userData: UserData): Promise<Questi
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     try {
+        const language = userData.assessmentLanguage || 'English';
+        const languageInstruction = language === 'Malayalam' 
+            ? `
+            **IMPORTANT LANGUAGE REQUIREMENT:**
+            - Generate ALL questions and ALL answer options in Malayalam language
+            - Use proper Malayalam script (മലയാളം)
+            - Keep the JSON structure and field names in English for technical compatibility
+            - Only the "text" fields for questions and options should be in Malayalam
+            - Ensure cultural appropriateness for Malayalam-speaking users
+            `
+            : `
+            **LANGUAGE REQUIREMENT:**
+            - Generate all questions and answer options in English
+            `;
+
         const prompt = `
             You are an expert psychometric assessment specialist. Your role is to generate exactly 20 personalized assessment questions based on the user's profile. Each question must be tailored to their background while maintaining scientific validity.
+
+            ${languageInstruction}
 
             --- User Profile ---
             - Age: ${userData.age || 'Not specified'}
@@ -50,14 +67,16 @@ export const questionGeneratorAgent = async (userData: UserData): Promise<Questi
             - Department/Major: ${userData.department || 'Not specified'}
             - Skills: ${userData.skills || 'Not specified'}
             - Area of Interest: ${userData.areaOfInterest || 'Not specified'}
+            - Assessment Language: ${language}
 
             --- Question Generation Rules ---
             1. **Strict Order:** 10 Psychometric questions first, then 10 Non-Psychometric questions
             2. **No User Name:** Never include the user's name in question text
             3. **subCategory is REQUIRED:** Every question must have this field
             4. **Question Perspective:**
-               - Psychometric questions: First-person ("I find it easy to...")
+               - Psychometric questions: First-person ("I find it easy to..." or Malayalam equivalent)
                - Non-Psychometric questions: Impersonal and objective
+            5. **Language Consistency:** All question text and option text must be in ${language}
 
             --- Section 1: Psychometric Questions (First 10) ---
             

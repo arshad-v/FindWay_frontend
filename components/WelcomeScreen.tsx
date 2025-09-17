@@ -150,6 +150,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                     <FeatureCard icon={<svg className="h-8 w-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>} title="Career Pathway Generator" delay="0.5s">
                         Transform your career aspirations into actionable step-by-step roadmaps with personalized timelines and milestones.
                     </FeatureCard>
+                    <FeatureCard icon={<svg className="h-8 w-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9" /></svg>} title="Native Language Support" delay="0.6s">
+                        Take your assessment in your preferred language - choose between English or മലയാളം (Malayalam) for a comfortable experience.
+                    </FeatureCard>
                 </div>
             </div>
         </section>

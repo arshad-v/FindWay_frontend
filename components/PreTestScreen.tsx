@@ -37,6 +37,7 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
   const [skills, setSkills] = useState('');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [interestSearch, setInterestSearch] = useState('');
+  const [assessmentLanguage, setAssessmentLanguage] = useState<'English' | 'Malayalam'>('English');
   
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,6 +47,10 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
     e.preventDefault();
     if (!name) {
       setError('Please enter your name.');
+      return;
+    }
+    if (!phone) {
+      setError('Please enter your phone number.');
       return;
     }
 
@@ -86,6 +91,22 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
       setError('Please select your education level.');
       return;
     }
+    if (showDetailedEducation && !degree) {
+      setError('Please enter your degree/program.');
+      return;
+    }
+    if (showDetailedEducation && !department) {
+      setError('Please enter your department/major.');
+      return;
+    }
+    if (!skills) {
+      setError('Please enter your skills or talents.');
+      return;
+    }
+    if (selectedInterests.length === 0) {
+      setError('Please select at least one area of interest.');
+      return;
+    }
 
     if (!user || !session) {
       setError('Please sign in to continue.');
@@ -106,7 +127,8 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
         degree, 
         department, 
         skills, 
-        areaOfInterest: selectedInterests.join(', ')
+        areaOfInterest: selectedInterests.join(', '),
+        assessmentLanguage
       };
 
       // Save pretest data to database
@@ -159,15 +181,6 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
   return (
     <div className="flex flex-col items-center justify-center text-center px-4">
       <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-2xl mx-auto relative">
-        {onBack && currentStep === 1 && (
-          <button
-            onClick={onBack}
-            className="absolute top-3 left-3 md:top-4 md:left-4 p-2 md:p-3 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all duration-300 group z-10"
-            title="Back"
-          >
-            <ArrowLeftIcon className="h-5 w-5 md:h-6 md:w-6" />
-          </button>
-        )}
 
         {currentStep === 1 ? (
           <>
@@ -196,7 +209,7 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
                   <svg className="h-5 w-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
-                  Phone Number
+                  Phone Number <span className="text-red-500 ml-1">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -208,7 +221,8 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
                     value={phone} 
                     onChange={(e) => setPhone(e.target.value)} 
                     placeholder="xxxxxxxxxx"
-                    className="w-full pl-12 pr-3 py-2.5 text-sm bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                    className="w-full pl-12 pr-3 py-2.5 text-sm bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required 
                   />
                 </div>
               </div>
@@ -251,6 +265,27 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
               Tell us about your educational background and areas of interest.
             </p>
             <form onSubmit={handleFinalSubmit} className="space-y-4 text-left">
+            <div>
+                <label htmlFor="assessmentLanguage" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
+                  <svg className="h-5 w-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9" />
+                  </svg>
+                  Assessment Language <span className="text-red-500 ml-1">*</span>
+                </label>
+                <select 
+                  id="assessmentLanguage" 
+                  value={assessmentLanguage} 
+                  onChange={(e) => setAssessmentLanguage(e.target.value as 'English' | 'Malayalam')}
+                  className="w-full px-3 py-2.5 text-sm bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                  required 
+                >
+                  <option value="English">English</option>
+                  <option value="Malayalam">മലയാളം (Malayalam)</option>
+                </select>
+                <p className="text-xs text-gray-400 mt-2">
+                  Choose the language for assessment questions and options. The final report will be in English.
+                </p>
+              </div>
               <div>
                 <label htmlFor="education" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
                   <BriefcaseIcon className="h-6 w-6 mr-2 text-gray-400" />
@@ -278,7 +313,7 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
                   <div>
                     <label htmlFor="degree" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
                       <BriefcaseIcon className="h-5 w-5 mr-2 text-gray-400" />
-                      Degree / Program
+                      Degree / Program <span className="text-red-500 ml-1">*</span>
                     </label>
                     <input 
                       type="text" 
@@ -286,13 +321,14 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
                       value={degree} 
                       onChange={(e) => setDegree(e.target.value)} 
                       placeholder="e.g., B.Tech, BSc, MBA"
-                      className="w-full px-3 py-2.5 text-sm bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                      className="w-full px-3 py-2.5 text-sm bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required 
                     />
                   </div>
                   <div>
                     <label htmlFor="department" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
                       <BookOpenIcon className="h-6 w-6 mr-2 text-gray-400" />
-                      Department / Major
+                      Department / Major <span className="text-red-500 ml-1">*</span>
                     </label>
                     <input 
                       type="text" 
@@ -300,7 +336,8 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
                       value={department} 
                       onChange={(e) => setDepartment(e.target.value)} 
                       placeholder="e.g., Computer Science, Biology"
-                      className="w-full px-3 py-2.5 text-sm bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                      className="w-full px-3 py-2.5 text-sm bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required 
                     />
                   </div>
                 </div>
@@ -309,7 +346,7 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
               <div>
                 <label htmlFor="skills" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
                   <StarIcon className="h-6 w-6 mr-2 text-gray-400" />
-                  Your Skills or Talents
+                  Your Skills or Talents <span className="text-red-500 ml-1">*</span>
                 </label>
                 <input 
                   type="text" 
@@ -317,14 +354,17 @@ export const PreTestScreen: React.FC<PreTestScreenProps> = ({ onComplete, onBack
                   value={skills} 
                   onChange={(e) => setSkills(e.target.value)} 
                   placeholder="e.g., Programming, Public Speaking, Graphic Design"
-                  className="w-full px-3 py-2.5 text-sm bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                  className="w-full px-3 py-2.5 text-sm bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  required 
                 />
               </div>
+
+              
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
                   <HeartIcon className="h-6 w-7 mr-2 text-gray-400" />
-                  Areas of Interest
+                  Areas of Interest <span className="text-red-500 ml-1">*</span>
                 </label>
                 
                 {/* Input with chips container */}

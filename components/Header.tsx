@@ -88,10 +88,21 @@ export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewRep
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
               </button>
             </SignedIn>
-            <a href="#features" className="hover:text-blue-400 transition-all duration-300 hover:scale-105 relative group">
+            <button 
+              onClick={() => {
+                onGoHome?.();
+                setTimeout(() => {
+                  const featuresSection = document.getElementById('features');
+                  if (featuresSection) {
+                    featuresSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }, 100);
+              }}
+              className="hover:text-blue-400 transition-all duration-300 hover:scale-105 relative group"
+            >
               Features
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
-            </a>
+            </button>
             <button 
               onClick={onPricing}
               className="hover:text-blue-400 transition-all duration-300 hover:scale-105 relative group"
@@ -99,10 +110,21 @@ export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewRep
               Pricing
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
             </button>
-            <a href="#contact" className="hover:text-blue-400 transition-all duration-300 hover:scale-105 relative group">
+            <button 
+              onClick={() => {
+                onGoHome?.();
+                setTimeout(() => {
+                  const contactSection = document.getElementById('contact');
+                  if (contactSection) {
+                    contactSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }, 100);
+              }}
+              className="hover:text-blue-400 transition-all duration-300 hover:scale-105 relative group"
+            >
               Contact
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
-            </a>
+            </button>
         </nav>
 
         {/* Desktop Right Side */}
@@ -187,13 +209,36 @@ export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewRep
                 Report
               </button>
             </SignedIn>
-            <a 
-              href="#features" 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block px-6 py-3 text-gray-300 hover:text-blue-400 hover:bg-slate-700/50 transition-all duration-300"
+            <button 
+              onClick={() => {
+                onGoHome?.();
+                setIsMobileMenuOpen(false);
+                setTimeout(() => {
+                  const featuresSection = document.getElementById('features');
+                  if (featuresSection) {
+                    featuresSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }, 100);
+              }}
+              className="block w-full text-left px-6 py-3 text-gray-300 hover:text-blue-400 hover:bg-slate-700/50 transition-all duration-300"
             >
               Features
-            </a>
+            </button>
+            <button 
+              onClick={() => {
+                onGoHome?.();
+                setIsMobileMenuOpen(false);
+                setTimeout(() => {
+                  const contactSection = document.getElementById('contact');
+                  if (contactSection) {
+                    contactSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }, 100);
+              }}
+              className="block w-full text-left px-6 py-3 text-gray-300 hover:text-blue-400 hover:bg-slate-700/50 transition-all duration-300"
+            >
+              Contact
+            </button>
             <button 
               onClick={() => {
                 onPricing?.();
