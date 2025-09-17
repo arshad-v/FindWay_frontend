@@ -19,7 +19,9 @@ CREATE TABLE public.users (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     last_login TIMESTAMP WITH TIME ZONE,
-    is_active BOOLEAN DEFAULT true
+    is_active BOOLEAN DEFAULT true,
+    assessment_count INTEGER DEFAULT 0, -- Track number of assessments generated
+    is_pro_user BOOLEAN DEFAULT false -- Track if user has pro subscription
 );
 
 -- Pre-test data table to store user information from PreTestScreen

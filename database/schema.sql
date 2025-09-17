@@ -10,7 +10,9 @@ CREATE TABLE public.users (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     last_login TIMESTAMP WITH TIME ZONE,
-    is_active BOOLEAN DEFAULT true
+    is_active BOOLEAN DEFAULT true,
+    assessment_count INTEGER DEFAULT 0, -- Track number of assessments generated
+    is_pro_user BOOLEAN DEFAULT false -- Track if user has pro subscription
 );
 
 -- Pre-test data table to store user information from PreTestScreen
@@ -45,6 +47,8 @@ CREATE TABLE public.user_activity_log (
 -- Indexes for better performance
 CREATE INDEX idx_users_clerk_user_id ON public.users(clerk_user_id);
 CREATE INDEX idx_users_email ON public.users(email);
+CREATE INDEX idx_users_assessment_count ON public.users(assessment_count);
+CREATE INDEX idx_users_is_pro_user ON public.users(is_pro_user);
 CREATE INDEX idx_pretest_data_clerk_user_id ON public.user_pretest_data(clerk_user_id);
 CREATE INDEX idx_activity_log_clerk_user_id ON public.user_activity_log(clerk_user_id);
 CREATE INDEX idx_activity_log_type ON public.user_activity_log(activity_type);

@@ -6,40 +6,59 @@ import { LoadingScreen } from './components/LoadingScreen';
 import { ReportScreen } from './components/ReportScreen';
 import { ChatCoachScreen } from './components/ChatCoachScreen';
 import { PricingScreen } from './components/PricingScreen';
+import { AssessmentLimitBanner } from './components/AssessmentLimitBanner';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { type AppState, type Answer, type ReportData, type UserData, type RawScores, Question } from './types';
 import { calculateScores } from './utils/scoreCalculator';
 import { generateCareerReport } from './services/aiAgents';
-import { SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
+import { DatabaseService } from './services/databaseService';
+import { SignedIn, SignedOut, useAuth, useSession } from "@clerk/clerk-react";
 
 const App: React.FC = () => {
   const { isSignedIn, isLoaded } = useAuth();
-  const [appState, setAppState] = useState<AppState | 'pricing'>('home');
+  const { session } = useSession();
+  const [appState, setAppState] = useState<AppState | 'pricing' | 'assessment-limit'>('home');
   const [userData, setUserData] = useState<UserData | null>(null);
   const [scores, setScores] = useState<RawScores | null>(null);
   const [report, setReport] = useState<ReportData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [assessmentStatus, setAssessmentStatus] = useState<{ assessmentCount: number; isProUser: boolean } | null>(null);
 
-  const handleStartTest = useCallback(() => {
+  const handleStartTest = useCallback(async () => {
     // Check if Clerk is loaded
     if (!isLoaded) {
       setError("Authentication is loading. Please wait a moment.");
       return;
     }
     
-    if (!isSignedIn) {
+    if (!isSignedIn || !session) {
       // Redirect to Clerk authentication - this will be handled by SignInButton
       return;
     }
 
-    // User is signed in, proceed with the test
-    setError(null);
-    setAppState('pre-test');
-    setUserData(null);
-    setScores(null);
-    setReport(null);
-  }, [isSignedIn, isLoaded]);
+    // Check assessment limit before proceeding
+    try {
+      const limitCheck = await DatabaseService.canGenerateAssessment(session);
+      
+      if (!limitCheck.canGenerate && !limitCheck.isProUser) {
+        // User has exceeded free limit, show upgrade banner
+        setAssessmentStatus({ assessmentCount: limitCheck.assessmentCount, isProUser: limitCheck.isProUser });
+        setAppState('assessment-limit');
+        return;
+      }
+
+      // User can proceed with the test
+      setError(null);
+      setAppState('pre-test');
+      setUserData(null);
+      setScores(null);
+      setReport(null);
+    } catch (error) {
+      console.error('Error checking assessment limit:', error);
+      setError("Unable to check assessment limit. Please try again.");
+    }
+  }, [isSignedIn, isLoaded, session]);
 
   // This effect guards against invalid state transitions that could cause render loops.
   useEffect(() => {
@@ -60,7 +79,7 @@ const App: React.FC = () => {
 
 
   const handleTestComplete = useCallback(async (answers: Answer[], questions: Question[]) => {
-    if (!userData) {
+    if (!userData || !session) {
       setError("User data is missing. Please restart the assessment.");
       setAppState('home');
       return;
@@ -80,6 +99,10 @@ const App: React.FC = () => {
       if (generatedReport && generatedReport.profileSummary && Array.isArray(generatedReport.careerMatches)) {
         setReport(generatedReport);
         localStorage.setItem('findway_last_report', JSON.stringify(generatedReport));
+        
+        // Increment assessment count after successful report generation
+        await DatabaseService.incrementAssessmentCount(session);
+        
         setAppState('report');
       } else {
         console.error("Received invalid report structure from AI:", generatedReport);
@@ -91,7 +114,7 @@ const App: React.FC = () => {
       setError(`Failed to generate your report. Please try again. Error: ${errorMessage}`);
       setAppState('home'); 
     }
-  }, [userData]);
+  }, [userData, session]);
   
   const handlePreTestComplete = useCallback((data: UserData) => {
     setUserData(data);
@@ -156,6 +179,11 @@ const App: React.FC = () => {
     setError(null);
   }, []);
 
+  const handleUpgradeToPro = useCallback(() => {
+    setAppState('pricing');
+    setError(null);
+  }, []);
+
   const handleChatWithCoach = useCallback(() => {
     if (report && userData) {
       setAppState('chat-coach');
@@ -194,6 +222,12 @@ const App: React.FC = () => {
          return <div className="container mx-auto px-4 py-8"><LoadingScreen /></div>;
       case 'pricing':
         return <PricingScreen onBack={() => setAppState('home')} />;
+      case 'assessment-limit':
+        return <AssessmentLimitBanner 
+          onUpgradeToPro={handleUpgradeToPro} 
+          assessmentCount={assessmentStatus?.assessmentCount || 0}
+          onClose={handleGoHome}
+        />;
       case 'report':
         if (report && scores && userData) {
           return <ReportScreen report={report} scores={scores} userData={userData} onRetake={handleRetakeTest} onChatWithCoach={handleChatWithCoach} />;

@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import React, { useState, useEffect } from 'react';
+import { useUser, useSession } from '@clerk/clerk-react';
+import { DatabaseService } from '../services/databaseService';
 
 interface TokenPlan {
   id: string;
   name: string;
   displayName: string;
   price: number;
+  originalPrice?: number; // For offer pricing
   currency: string;
   tokens: number;
   features: string[];
@@ -21,7 +23,54 @@ interface PricingScreenProps {
 
 export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack, onPlanSelect }) => {
   const { user } = useUser();
-  const [userTokens] = useState(1); // This will be fetched from backend later
+  const { session } = useSession();
+  const [userTokens, setUserTokens] = useState<number | null>(null);
+  const [isProUser, setIsProUser] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch user's current token status
+  useEffect(() => {
+    const fetchUserTokens = async () => {
+      if (!session) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const status = await DatabaseService.getUserAssessmentStatus(session);
+        if (status) {
+          // Calculate remaining tokens based on user type and usage
+          const usedTokens = status.assessmentCount;
+          const isProUser = status.isProUser;
+          
+          setIsProUser(isProUser);
+          
+          if (isProUser) {
+            // Pro users have 2 tokens total
+            const remainingTokens = Math.max(0, 2 - usedTokens);
+            setUserTokens(remainingTokens);
+          } else {
+            // Free users have 1 token total
+            const remainingTokens = Math.max(0, 1 - usedTokens);
+            setUserTokens(remainingTokens);
+          }
+        } else {
+          // New user - has 1 free token
+          setUserTokens(1);
+          setIsProUser(false);
+        }
+      } catch (error) {
+        console.error('Error fetching user tokens:', error);
+        // Default to 1 token for new users
+        setUserTokens(1);
+        setIsProUser(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserTokens();
+  }, [session]);
 
   // Static pricing plans - will be moved to backend later
   const plans: TokenPlan[] = [
@@ -50,12 +99,13 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack, onPlanSele
       id: 'pro',
       name: 'pro',
       displayName: 'Pro Plan',
-      price: 299,
+      price: 99, // Offer price
+      originalPrice: 299, // Original price for discount display
       currency: 'INR',
-      tokens: 5,
+      tokens: 2,
       isPopular: true,
       features: [
-        '5 Assessment Tokens',
+        '2 Assessment Tokens',
         '50+ Page Detailed Reports',
         'Advanced Career Insights',
         'Unlimited AI Career Coach',
@@ -104,20 +154,56 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack, onPlanSele
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-12 px-4">
       <div className="max-w-7xl mx-auto">
+        {/* Back Button */}
+        {onBack && (
+          <div className="mb-8">
+            <button
+              onClick={onBack}
+              className="inline-flex items-center px-4 py-2 text-white hover:text-blue-300 transition-colors duration-200"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Home
+            </button>
+          </div>
+        )}
+
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
             Choose Your Career Journey
           </h1>
           
-          
-
+          <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+            Unlock your potential with our limited-time offer. Get advanced career insights and personalized guidance to shape your future.
+          </p>
           {/* User Token Display */}
           {user && (
             <div className="inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-8">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
+              <div className="flex items-center space-x-3">
+                <div className={`w-3 h-3 rounded-full ${
+                  loading ? 'bg-gray-400' : 
+                  userTokens === 0 ? 'bg-red-400' : 
+                  isProUser ? 'bg-purple-400' : 'bg-blue-400'
+                }`}></div>
                 <span className="text-white font-medium">
-                  Your Tokens: <span className="text-blue-300 font-bold">{userTokens}</span>
+                  {loading ? (
+                    'Loading tokens...'
+                  ) : (
+                    <>
+                      Your Tokens: <span className={`font-bold ${
+                        userTokens === 0 ? 'text-red-300' : 
+                        isProUser ? 'text-purple-300' : 'text-blue-300'
+                      }`}>
+                        {userTokens}
+                      </span>
+                      {isProUser && (
+                        <span className="ml-2 px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full">
+                          PRO
+                        </span>
+                      )}
+                    </>
+                  )}
                 </span>
               </div>
             </div>
@@ -159,17 +245,6 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack, onPlanSele
                     {plan.displayName}
                   </h3>
                   
-                  <div className="mb-4">
-                    <div className="text-4xl font-bold text-white mb-2">
-                      {plan.isEnterprise ? 'Custom' : formatPrice(plan.price, plan.currency)}
-                    </div>
-                    {!plan.isEnterprise && (
-                      <p className="text-gray-400 text-sm">
-                        {plan.price === 0 ? 'Always Free' : 'One-time payment'}
-                      </p>
-                    )}
-                  </div>
-
                   {/* Token Display */}
                   <div className="mb-6 p-4 bg-white/5 rounded-lg border border-white/10">
                     <div className="flex items-center justify-center space-x-2 mb-2">
@@ -189,6 +264,38 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack, onPlanSele
                     </p>
                   </div>
 
+                  <div className="mb-6">
+                    {plan.originalPrice && plan.originalPrice > plan.price ? (
+                      <>
+                        <div className="flex items-center justify-center space-x-2 mb-2">
+                          <span className="text-3xl font-bold text-white">{formatPrice(plan.price, plan.currency)}</span>
+                          <span className="text-xl text-gray-400 line-through">{formatPrice(plan.originalPrice, plan.currency)}</span>
+                        </div>
+                        <div className="text-center">
+                          <span className="inline-block px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-semibold rounded-full">
+                            {Math.round(((plan.originalPrice - plan.price) / plan.originalPrice) * 100)}% OFF
+                          </span>
+                        </div>
+                        {!plan.isEnterprise && (
+                          <p className="text-gray-400 text-sm text-center mt-2">
+                            Limited Time Offer
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-4xl font-bold text-white mb-2 text-center">
+                          {plan.isEnterprise ? 'Custom' : formatPrice(plan.price, plan.currency)}
+                        </div>
+                        {!plan.isEnterprise && (
+                          <p className="text-gray-400 text-sm text-center">
+                            One-time payment
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </div>
+
                   <button
                     onClick={() => handlePlanSelect(plan)}
                     className={`w-full py-3 px-6 rounded-lg font-semibold transition-all ${
@@ -199,7 +306,7 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack, onPlanSele
                         : 'bg-white/20 text-white hover:bg-white/30'
                     }`}
                   >
-                    {plan.isEnterprise ? 'Contact Sales' : plan.price === 0 ? 'Get Started Free' : 'Buy Tokens'}
+                    {plan.isEnterprise ? 'Contact Sales' : plan.price === 0 ? 'Get Started Free' : 'Coming Soon'}
                   </button>
                 </div>
 
@@ -238,6 +345,22 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack, onPlanSele
               </div>
             );
           })}
+        </div>
+
+        {/* Payment Gateway Notice */}
+        <div className="mt-12 mb-8 max-w-4xl mx-auto">
+          <div className="bg-gradient-to-r from-amber-900/20 to-orange-900/20 border border-amber-500/50 backdrop-blur-sm rounded-2xl p-6 text-center">
+            <div className="flex items-center justify-center mb-4">
+              <svg className="h-6 w-6 text-amber-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <span className="text-amber-300 font-semibold">Payment Processing Coming Soon</span>
+            </div>
+            <p className="text-amber-200 text-sm leading-relaxed">
+              We're currently setting up our payment gateway. You can explore our plans above, but purchasing will be available soon. 
+              Stay tuned for updates and get ready to unlock advanced career insights!
+            </p>
+          </div>
         </div>
 
         {/* How Tokens Work */}

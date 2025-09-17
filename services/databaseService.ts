@@ -10,6 +10,8 @@ export interface DatabaseUser {
   updated_at: string;
   last_login?: string;
   is_active: boolean;
+  assessment_count?: number;
+  is_pro_user?: boolean;
 }
 
 export interface PreTestData {
@@ -191,6 +193,111 @@ export class DatabaseService {
       return data;
     } catch (error) {
       console.error('Error in getPreTestData:', error);
+      return null;
+    }
+  }
+
+  // Check if user can generate assessment (free users: 1 assessment, pro users: unlimited)
+  static async canGenerateAssessment(session: any): Promise<{ canGenerate: boolean; assessmentCount: number; isProUser: boolean }> {
+    try {
+      const client = createClerkSupabaseClient(session);
+      
+      const { data: user, error } = await client
+        .from('users')
+        .select('assessment_count, is_pro_user')
+        .maybeSingle();
+
+      // If user doesn't exist yet (new user), they can generate their first assessment
+      if (error && error.code === 'PGRST116') {
+        console.log('New user detected, allowing first assessment');
+        return { canGenerate: true, assessmentCount: 0, isProUser: false };
+      }
+
+      if (error) {
+        console.error('Error checking assessment limit:', error);
+        // For other errors, allow the assessment (benefit of doubt for new users)
+        return { canGenerate: true, assessmentCount: 0, isProUser: false };
+      }
+
+      // Handle case where user exists but assessment_count is null/undefined (new user)
+      const assessmentCount = user?.assessment_count ?? 0;
+      const isProUser = user?.is_pro_user || false;
+
+      // Pro users can generate unlimited assessments
+      if (isProUser) {
+        return { canGenerate: true, assessmentCount, isProUser: true };
+      }
+
+      // Free users can only generate 1 assessment
+      const canGenerate = assessmentCount < 1;
+      return { canGenerate, assessmentCount, isProUser: false };
+    } catch (error) {
+      console.error('Error in canGenerateAssessment:', error);
+      // For unexpected errors, allow the assessment (benefit of doubt)
+      return { canGenerate: true, assessmentCount: 0, isProUser: false };
+    }
+  }
+
+  // Increment assessment count after successful report generation
+  static async incrementAssessmentCount(session: any): Promise<boolean> {
+    try {
+      const client = createClerkSupabaseClient(session);
+      
+      // Get current count and clerk_user_id
+      const { data: user, error: selectError } = await client
+        .from('users')
+        .select('assessment_count, clerk_user_id')
+        .maybeSingle();
+
+      if (selectError) {
+        console.error('Error getting current assessment count:', selectError);
+        return false;
+      }
+
+      const currentCount = user?.assessment_count || 0;
+      
+      // Increment count using the RLS policy (it will automatically use the JWT token)
+      const { error: updateError } = await client
+        .from('users')
+        .update({ 
+          assessment_count: currentCount + 1,
+          updated_at: new Date().toISOString()
+        })
+        .eq('clerk_user_id', user?.clerk_user_id);
+
+      if (updateError) {
+        console.error('Error incrementing assessment count:', updateError);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error in incrementAssessmentCount:', error);
+      return false;
+    }
+  }
+
+  // Get user's current assessment status
+  static async getUserAssessmentStatus(session: any): Promise<{ assessmentCount: number; isProUser: boolean } | null> {
+    try {
+      const client = createClerkSupabaseClient(session);
+      
+      const { data: user, error } = await client
+        .from('users')
+        .select('assessment_count, is_pro_user')
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error getting user assessment status:', error);
+        return null;
+      }
+
+      return {
+        assessmentCount: user?.assessment_count || 0,
+        isProUser: user?.is_pro_user || false
+      };
+    } catch (error) {
+      console.error('Error in getUserAssessmentStatus:', error);
       return null;
     }
   }
