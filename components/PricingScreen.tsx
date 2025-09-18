@@ -27,6 +27,7 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack, onPlanSele
   const [userTokens, setUserTokens] = useState<number | null>(null);
   const [isProUser, setIsProUser] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   // Fetch user's current token status
   useEffect(() => {
@@ -140,8 +141,15 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack, onPlanSele
     }
   ];
 
-  const handlePlanSelect = (plan: TokenPlan) => {
-    if (onPlanSelect) {
+  const handlePlanSelect = async (plan: TokenPlan) => {
+    if (plan.id === 'pro') {
+      // Track payment interest in database
+      if (session) {
+        await DatabaseService.trackPaymentInterest(session);
+      }
+      // Show payment modal
+      setShowPaymentModal(true);
+    } else if (onPlanSelect) {
       onPlanSelect(plan);
     }
   };
@@ -306,7 +314,7 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack, onPlanSele
                         : 'bg-white/20 text-white hover:bg-white/30'
                     }`}
                   >
-                    {plan.isEnterprise ? 'Contact Sales' : plan.price === 0 ? 'Get Started Free' : 'Coming Soon'}
+                    {plan.isEnterprise ? 'Contact Sales' : plan.price === 0 ? 'Get Started Free' : 'Claim Offer Now'}
                   </button>
                 </div>
 
@@ -345,22 +353,6 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack, onPlanSele
               </div>
             );
           })}
-        </div>
-
-        {/* Payment Gateway Notice */}
-        <div className="mt-12 mb-8 max-w-4xl mx-auto">
-          <div className="bg-gradient-to-r from-amber-900/20 to-orange-900/20 border border-amber-500/50 backdrop-blur-sm rounded-2xl p-6 text-center">
-            <div className="flex items-center justify-center mb-4">
-              <svg className="h-6 w-6 text-amber-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-              <span className="text-amber-300 font-semibold">Payment Processing Coming Soon</span>
-            </div>
-            <p className="text-amber-200 text-sm leading-relaxed">
-              We're currently setting up our payment gateway. You can explore our plans above, but purchasing will be available soon. 
-              Stay tuned for updates and get ready to unlock advanced career insights!
-            </p>
-          </div>
         </div>
 
         {/* How Tokens Work */}
@@ -402,6 +394,54 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onBack, onPlanSele
             Need help choosing? <a href="#" className="text-blue-400 hover:text-blue-300">Contact our team</a>
           </p>
         </div>
+
+        {/* Payment Gateway Modal */}
+        {showPaymentModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-gradient-to-r from-amber-900/20 to-orange-900/20 border border-amber-500/50 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full text-center relative">
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors duration-200"
+                aria-label="Close"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              
+              <div className="flex items-center justify-center mb-6">
+                <svg className="h-12 w-12 text-amber-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              
+              <h3 className="text-2xl font-bold text-amber-300 mb-4">Payment Processing Coming Soon</h3>
+              
+              <p className="text-amber-200 text-sm leading-relaxed mb-6">
+                We're currently setting up our payment gateway. Your interest has been recorded and we'll notify you as soon as purchasing becomes available. 
+                Get ready to unlock advanced career insights!
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-all"
+                >
+                  Got It
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPaymentModal(false);
+                    if (onBack) onBack();
+                  }}
+                  className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-all"
+                >
+                  Back to Home
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

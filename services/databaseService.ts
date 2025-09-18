@@ -12,6 +12,7 @@ export interface DatabaseUser {
   is_active: boolean;
   assessment_count?: number;
   is_pro_user?: boolean;
+  pay_interest?: boolean;
 }
 
 export interface PreTestData {
@@ -299,6 +300,31 @@ export class DatabaseService {
     } catch (error) {
       console.error('Error in getUserAssessmentStatus:', error);
       return null;
+    }
+  }
+
+  // Track user payment interest
+  static async trackPaymentInterest(session: any): Promise<boolean> {
+    try {
+      const client = createClerkSupabaseClient(session);
+      
+      const { error } = await client
+        .from('users')
+        .update({ 
+          pay_interest: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('clerk_user_id', (await client.from('users').select('clerk_user_id').maybeSingle()).data?.clerk_user_id);
+
+      if (error) {
+        console.error('Error tracking payment interest:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error in trackPaymentInterest:', error);
+      return false;
     }
   }
 
