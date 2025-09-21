@@ -17,23 +17,18 @@ export function createClerkSupabaseClient(session: any) {
     supabaseUrl,
     supabaseAnonKey,
     {
-      global: {
-        fetch: async (url, options: RequestInit = {}) => {
-          const clerkToken = await session?.getToken();
-          
-          return fetch(url, {
-            ...options,
-            headers: {
-              'apikey': supabaseAnonKey,
-              'Content-Type': 'application/json',
-              ...options.headers,
-              Authorization: clerkToken ? `Bearer ${clerkToken}` : `Bearer ${supabaseAnonKey}`,
-            },
-          });
-        },
-      },
+      // Supabase will call this to attach the Authorization header automatically
+      accessToken: async () =>
+        (await session?.getToken({ template: 'supabase' }))
+          || (await session?.getToken())
+          || null,
       auth: {
+        // Prevent creating multiple GoTrue clients with shared storage keys
+        storageKey: 'sb-clerk',
+        // We don't need Supabase to manage its own session in the browser
         persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
       },
     }
   );
@@ -47,20 +42,15 @@ export function useSupabaseClient() {
     supabaseUrl,
     supabaseAnonKey,
     {
-      global: {
-        fetch: async (url, options: RequestInit = {}) => {
-          const clerkToken = await session?.getToken();
-          
-          return fetch(url, {
-            ...options,
-            headers: {
-              'apikey': supabaseAnonKey,
-              'Content-Type': 'application/json',
-              ...options.headers,
-              Authorization: clerkToken ? `Bearer ${clerkToken}` : `Bearer ${supabaseAnonKey}`,
-            },
-          });
-        },
+      accessToken: async () =>
+        (await session?.getToken({ template: 'supabase' }))
+          || (await session?.getToken())
+          || null,
+      auth: {
+        storageKey: 'sb-clerk',
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
       },
     }
   );
