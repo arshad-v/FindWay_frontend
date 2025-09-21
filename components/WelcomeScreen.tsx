@@ -82,8 +82,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
                         <SignInButton>
                             <button className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 sm:py-5 sm:px-12 rounded-2xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 flex items-center justify-center w-auto mx-auto group relative overflow-hidden text-base sm:text-lg">
                                 <ZapIcon className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6" />
-                                <span className="hidden sm:inline">Start Your Free Assessment</span>
-                                <span className="sm:hidden">Start Assessment</span>
+                                <span className="hidden sm:inline">Get Your Career Report, Free</span>
+                                <span className="sm:hidden">Get Free Career Report</span>
                                 <ArrowRightIcon className="ml-2 sm:ml-3 h-5 w-5 sm:h-6 sm:w-6" />
                             </button>
                         </SignInButton>
