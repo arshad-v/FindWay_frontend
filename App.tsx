@@ -3,6 +3,7 @@ import { HomeScreen } from './components/WelcomeScreen';
 import { PreTestScreen } from './components/PreTestScreen';
 import { TestScreen } from './components/TestScreen';
 import { LoadingScreen } from './components/LoadingScreen';
+import { AppLoadingScreen } from './components/AppLoadingScreen';
 import { ReportScreen } from './components/ReportScreen';
 import { ChatCoachScreen } from './components/ChatCoachScreen';
 import { PricingScreen } from './components/PricingScreen';
@@ -24,6 +25,7 @@ const App: React.FC = () => {
   const [report, setReport] = useState<ReportData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [assessmentStatus, setAssessmentStatus] = useState<{ assessmentCount: number; isProUser: boolean } | null>(null);
+  const [isAppLoading, setIsAppLoading] = useState(true);
 
   const handleStartTest = useCallback(async () => {
     // Check if Clerk is loaded
@@ -195,14 +197,19 @@ const App: React.FC = () => {
     setAppState('report');
   }, []);
   
-  // Initialize app state on mount
+  // Initialize app state on mount with loading screen
   useEffect(() => {
-    // Ensure we start on home page
-    setAppState('home');
-    setUserData(null);
-    setScores(null);
-    setReport(null);
-    setError(null);
+    // Show loading screen for 2 seconds to allow animations to load
+    const timer = setTimeout(() => {
+      setIsAppLoading(false);
+      setAppState('home');
+      setUserData(null);
+      setScores(null);
+      setReport(null);
+      setError(null);
+    }, 2000); // 2 second loading screen
+
+    return () => clearTimeout(timer);
   }, []);
 
 
@@ -267,6 +274,11 @@ const App: React.FC = () => {
         return <HomeScreen onStartTest={handleStartTest} />;
     }
   };
+
+  // Show app loading screen first
+  if (isAppLoading) {
+    return <AppLoadingScreen />;
+  }
 
   const isReportScreen = appState === 'report' || appState === 'chat-coach';
   const showHeader = appState !== 'chat-coach';
