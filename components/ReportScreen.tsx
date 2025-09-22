@@ -1,11 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { useUser, useSession } from '@clerk/clerk-react';
 import { type ReportData, type RawScores, type UserData, type PathwayPlan } from '../types';
 import { getNormalizedScoresForChart } from '../utils/scoreCalculator';
 import { ScoreChart } from './ScoreChart';
 import { PathwayPlannerModal } from './PathwayPlannerModal';
-import { LightbulbIcon, BriefcaseIcon, GrowthIcon, DownloadIcon, RefreshCwIcon, StarIcon, TargetIcon, BookOpenIcon, ZapIcon, CodeIcon, DollarSignIcon, PaletteIcon, StethoscopeIcon, UsersIcon, UserIcon, CompassIcon, FlagIcon, MessageCircleIcon, MapIcon } from './icons';
+import { DatabaseService } from '../services/databaseService';
+import { LightbulbIcon, BriefcaseIcon, GrowthIcon, DownloadIcon, RefreshCwIcon, StarIcon, TargetIcon, BookOpenIcon, ZapIcon, CodeIcon, DollarSignIcon, PaletteIcon, StethoscopeIcon, UsersIcon, UserIcon, CompassIcon, FlagIcon, MessageCircleIcon, MapIcon, LockIcon } from './icons';
 
 interface ReportScreenProps {
   report: ReportData;
@@ -13,6 +15,7 @@ interface ReportScreenProps {
   userData: UserData;
   onRetake: () => void;
   onChatWithCoach?: () => void;
+  onNavigateToPricing?: () => void;
 }
 
 const SectionCard: React.FC<{ icon: React.ReactNode; title: string; children: React.ReactNode, className?: string }> = ({ icon, title, children, className = '' }) => (
@@ -103,14 +106,46 @@ const DetailedScores: React.FC<{scores: RawScores, analysis: ReportData['detaile
     );
 };
 
-export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, userData, onRetake, onChatWithCoach }) => {
+export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, userData, onRetake, onChatWithCoach, onNavigateToPricing }) => {
+  const { user } = useUser();
+  const { session } = useSession();
   const reportContentRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [pathwayCareer, setPathwayCareer] = useState<string | null>(null);
   const [pathwayCache, setPathwayCache] = useState<{ [key: string]: PathwayPlan }>({});
+  const [isProUser, setIsProUser] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const normalizedScores = getNormalizedScoresForChart(scores);
 
-  const handleGeneratePathway = (careerTitle: string) => {
+  // Check user's pro status
+  useEffect(() => {
+    const checkProStatus = async () => {
+      if (session) {
+        try {
+          const status = await DatabaseService.getUserAssessmentStatus(session);
+          setIsProUser(status?.isProUser || false);
+        } catch (error) {
+          console.error('Error checking pro status:', error);
+          setIsProUser(false);
+        }
+      }
+    };
+    checkProStatus();
+  }, [session]);
+
+  const handleGeneratePathway = (careerTitle: string, careerIndex: number) => {
+    // First career match (index 0) is always free
+    if (careerIndex === 0) {
+      setPathwayCareer(careerTitle);
+      return;
+    }
+
+    // For career matches 2 and 3 (index 1 and 2), check if user is pro
+    if (!isProUser) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
     setPathwayCareer(careerTitle);
   };
 
@@ -293,11 +328,27 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                                                         <h3 className="text-lg font-bold text-white mb-2">Ready to Start?</h3>
                                                         <p className="text-white/90 text-sm mb-4">Get your personalized roadmap</p>
                                                         <button
-                                                            onClick={() => handleGeneratePathway(match.title)}
-                                                            className="bg-white text-indigo-600 hover:bg-gray-50 px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 w-full"
+                                                            onClick={() => handleGeneratePathway(match.title, index)}
+                                                            className={`${
+                                                                index === 0 || isProUser 
+                                                                    ? 'bg-white text-indigo-600 hover:bg-gray-50' 
+                                                                    : 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-600'
+                                                            } px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2 w-full relative overflow-hidden`}
                                                         >
-                                                            <MapIcon className="h-6 w-7" />
-                                                            <span>Generate My Pathway</span>
+                                                            {index === 0 || isProUser ? (
+                                                                <>
+                                                                    <MapIcon className="h-6 w-7" />
+                                                                    <span>Generate My Pathway</span>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <LockIcon className="h-5 w-5" />
+                                                                    <span>Upgrade to Pro</span>
+                                                                    <div className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-bl-lg font-bold">
+                                                                        PRO
+                                                                    </div>
+                                                                </>
+                                                            )}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -340,14 +391,32 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                                                             
                                                             <div className="flex-shrink-0">
                                                                 <button
-                                                                    onClick={() => handleGeneratePathway(match.title)}
-                                                                    className="group relative bg-white text-indigo-600 hover:text-indigo-700 px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 hover:-translate-y-1 min-w-[200px]"
+                                                                    onClick={() => handleGeneratePathway(match.title, index)}
+                                                                    className={`group relative ${
+                                                                        index === 0 || isProUser 
+                                                                            ? 'bg-white text-indigo-600 hover:text-indigo-700' 
+                                                                            : 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white hover:from-yellow-500 hover:to-orange-600'
+                                                                    } px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 hover:-translate-y-1 min-w-[200px] overflow-hidden`}
                                                                 >
-                                                                    <div className="flex items-center justify-center space-x-3">
-                                                                        <MapIcon className="h-6 w-7 group-hover:rotate-12 transition-transform duration-300" />
-                                                                        <span>Generate My Pathway</span>
-                                                                    </div>
-                                                                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+                                                                    {index === 0 || isProUser ? (
+                                                                        <>
+                                                                            <div className="flex items-center justify-center space-x-3">
+                                                                                <MapIcon className="h-6 w-7 group-hover:rotate-12 transition-transform duration-300" />
+                                                                                <span>Generate My Pathway</span>
+                                                                            </div>
+                                                                            <div className="absolute inset-0 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <div className="flex items-center justify-center space-x-3">
+                                                                                <LockIcon className="h-6 w-6" />
+                                                                                <span>Upgrade to Pro</span>
+                                                                            </div>
+                                                                            <div className="absolute top-0 right-0 bg-red-500 text-white text-xs px-3 py-1 rounded-bl-xl font-bold">
+                                                                                PRO
+                                                                            </div>
+                                                                        </>
+                                                                    )}
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -427,6 +496,98 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
           careerTitle={pathwayCareer}
           userData={userData}
         />
+      )}
+
+      {/* Upgrade to Pro Modal */}
+      {showUpgradeModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center relative shadow-2xl">
+            <button
+              onClick={() => setShowUpgradeModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              aria-label="Close"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <div className="mb-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <LockIcon className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">Unlock Career Pathways</h3>
+              <p className="text-gray-600">
+                Get personalized roadmaps for all your top career matches with our Pro plan!
+              </p>
+            </div>
+            
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6">
+              <h4 className="font-semibold text-gray-800 mb-4">Pro Features Include:</h4>
+              <div className="grid grid-cols-1 gap-2 text-left text-sm text-gray-700">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+                  <span>2 Assessment Tokens</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+                  <span>50+ Page Detailed Reports</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+                  <span>Advanced Career Insights</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+                  <span>Unlimited AI Career Coach</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+                  <span>AI Chat Memory & Context</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+                  <span>Save & Download Reports</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+                  <span>Priority Support</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+                  <span>Career Roadmap Planning</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
+                  <span>Industry Trend Analysis</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  setShowUpgradeModal(false);
+                  if (onNavigateToPricing) {
+                    onNavigateToPricing();
+                  } else {
+                    // Fallback navigation
+                    window.location.href = '#pricing';
+                  }
+                }}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                Upgrade to Pro - ₹99
+              </button>
+              <button
+                onClick={() => setShowUpgradeModal(false)}
+                className="text-gray-500 hover:text-gray-700 font-medium py-2 transition-colors duration-200"
+              >
+                Maybe Later
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

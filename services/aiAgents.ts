@@ -56,7 +56,7 @@ export const questionGeneratorAgent = async (userData: UserData): Promise<Questi
             `;
 
         const prompt = `
-            You are an expert psychometric assessment specialist. Your role is to generate exactly 20 personalized assessment questions based on the user's profile. Each question must be tailored to their background while maintaining scientific validity.
+            You are an expert psychometric assessment specialist. Your role is to generate exactly 20 personalized assessment simple questions based on the user's profile. Each question must be understandale and tailored to their background while maintaining scientific validity.
 
             ${languageInstruction}
 

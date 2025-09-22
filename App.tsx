@@ -237,7 +237,7 @@ const App: React.FC = () => {
         />;
       case 'report':
         if (report && scores && userData) {
-          return <ReportScreen report={report} scores={scores} userData={userData} onRetake={handleRetakeTest} onChatWithCoach={handleChatWithCoach} />;
+          return <ReportScreen report={report} scores={scores} userData={userData} onRetake={handleRetakeTest} onChatWithCoach={handleChatWithCoach} onNavigateToPricing={handlePricing} />;
         }
         // Show error message on report page when no report is available
         return (
