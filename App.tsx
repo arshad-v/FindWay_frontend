@@ -106,6 +106,8 @@ const App: React.FC = () => {
         await DatabaseService.incrementAssessmentCount(session);
         
         setAppState('report');
+        // Scroll to top when showing report
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         console.error("Received invalid report structure from AI:", generatedReport);
         throw new Error("The AI model did not return a valid report. The structure was incorrect.");
@@ -121,6 +123,8 @@ const App: React.FC = () => {
   const handlePreTestComplete = useCallback((data: UserData) => {
     setUserData(data);
     setAppState('test');
+    // Scroll to top when starting test
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   const handleRetakeTest = useCallback(() => {
@@ -133,6 +137,8 @@ const App: React.FC = () => {
     setScores(null);
     setReport(null);
     setError(null);
+    // Scroll to top when navigating to home
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   const handleViewReport = useCallback(() => {
@@ -151,6 +157,8 @@ const App: React.FC = () => {
     if (report && scores && userData) {
       setAppState('report');
       setError(null);
+      // Scroll to top when navigating to report
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       // Try to load from localStorage or show error
       const savedUserData = localStorage.getItem('findway_last_userdata');
@@ -164,6 +172,8 @@ const App: React.FC = () => {
           setReport(JSON.parse(savedReport));
           setAppState('report');
           setError(null);
+          // Scroll to top when navigating to report
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (e) {
           console.error('Error loading saved data:', e);
           setError("Unable to load your previous report. Please take the assessment again.");
@@ -172,6 +182,8 @@ const App: React.FC = () => {
         // Navigate to report page with error
         setAppState('report');
         setError("No previous report found. Please take the assessment first.");
+        // Scroll to top when navigating to report
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
   }, [isLoaded, isSignedIn, report, scores, userData]);
@@ -179,22 +191,30 @@ const App: React.FC = () => {
   const handlePricing = useCallback(() => {
     setAppState('pricing');
     setError(null);
+    // Scroll to top when navigating to pricing
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   const handleUpgradeToPro = useCallback(() => {
     setAppState('pricing');
     setError(null);
+    // Scroll to top when navigating to pricing
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   const handleChatWithCoach = useCallback(() => {
     if (report && userData) {
       setAppState('chat-coach');
       setError(null);
+      // Scroll to top when navigating to chat
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [report, userData]);
 
   const handleBackFromChat = useCallback(() => {
     setAppState('report');
+    // Scroll to top when going back to report
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
   
   // Initialize app state on mount with loading screen

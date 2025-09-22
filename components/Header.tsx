@@ -114,9 +114,9 @@ export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewRep
               onClick={() => {
                 onGoHome?.();
                 setTimeout(() => {
-                  const contactSection = document.getElementById('contact');
-                  if (contactSection) {
-                    contactSection.scrollIntoView({ behavior: 'smooth' });
+                  const communitySection = document.getElementById('community');
+                  if (communitySection) {
+                    communitySection.scrollIntoView({ behavior: 'smooth' });
                   }
                 }, 100);
               }}
@@ -229,9 +229,9 @@ export const Header: React.FC<HeaderProps> = ({ onStartTest, onGoHome, onViewRep
                 onGoHome?.();
                 setIsMobileMenuOpen(false);
                 setTimeout(() => {
-                  const contactSection = document.getElementById('contact');
-                  if (contactSection) {
-                    contactSection.scrollIntoView({ behavior: 'smooth' });
+                  const communitySection = document.getElementById('community');
+                  if (communitySection) {
+                    communitySection.scrollIntoView({ behavior: 'smooth' });
                   }
                 }, 100);
               }}

@@ -360,7 +360,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onStartTest, error }) =>
         </section>
 
         {/* Community Section */}
-        <section className="py-20 md:py-32 bg-black">
+        <section id="community" className="py-20 md:py-32 bg-black">
             <div className="container mx-auto px-6 text-center">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex justify-center mb-8">

@@ -409,7 +409,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
                                                                     ) : (
                                                                         <>
                                                                             <div className="flex items-center justify-center space-x-3">
-                                                                                <LockIcon className="h-6 w-6" />
+                                                                                <LockIcon className="h-6 w-7" />
                                                                                 <span>Upgrade to Pro</span>
                                                                             </div>
                                                                             <div className="absolute top-0 right-0 bg-red-500 text-white text-xs px-3 py-1 rounded-bl-xl font-bold">
@@ -435,41 +435,41 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({ report, scores, user
             <div className="p-4 md:p-8 bg-slate-50 rounded-none print:p-6 print:shadow-none print:bg-white w-full">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                     <SectionCard icon={<LightbulbIcon className="h-8 w-8 text-yellow-500" />} title="Dominant Strengths">
-                        <ul className="space-y-4">
+                        <div className="space-y-4">
                             {report.strengths?.map((strength, index) => (
-                                <li key={index} className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                                <div key={index} className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
                                     <p className="font-bold text-yellow-900">{strength.title}</p>
                                     <p className="text-sm text-slate-700 mt-1">{strength.description}</p>
-                                </li>
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     </SectionCard>
                     <SectionCard icon={<GrowthIcon className="h-8 w-8 text-green-500" />} title="Development Plan">
                         <div className="space-y-6">
                             <div>
                                 <h4 className="font-semibold text-md text-slate-700 flex items-center mb-3"><TargetIcon className="h-5 w-5 text-red-500 mr-2"/>Areas for Improvement</h4>
-                                <ul className="space-y-3">
+                                <div className="space-y-3">
                                     {report.developmentPlan?.areasForImprovement?.map((area, index) => (
-                                        <li key={index} className="bg-red-50 p-3 rounded-lg">
+                                        <div key={index} className="bg-red-50 p-3 rounded-lg">
                                             <p className="font-bold text-red-900 text-sm">{area.title}</p>
                                             <p className="text-xs text-slate-600">{area.description}</p>
-                                        </li>
+                                        </div>
                                     ))}
-                                </ul>
+                                </div>
                             </div>
                             <div>
                                 <h4 className="font-semibold text-md text-slate-700 mb-3">Actionable Recommendations</h4>
-                                <ul className="space-y-3">
+                                <div className="space-y-3">
                                     {report.developmentPlan?.recommendations?.map((rec, index) => (
-                                        <li key={index} className="flex items-start bg-green-50 p-3 rounded-lg">
+                                        <div key={index} className="flex items-start bg-green-50 p-3 rounded-lg">
                                             <RecommendationIcon type={rec.type} />
                                             <div>
                                                 <p className="font-bold text-green-900 text-sm">{rec.type}</p>
                                                 <p className="text-xs text-slate-600">{rec.description}</p>
                                             </div>
-                                        </li>
+                                        </div>
                                     ))}
-                                </ul>
+                                </div>
                             </div>
                         </div>
                     </SectionCard>
